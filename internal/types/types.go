@@ -11,6 +11,7 @@ type ConfigManager interface {
 	GetEncryptionKey() string
 	GetEffectiveServerConfig() ServerConfig
 	GetRedisDSN() string
+	GetRedisPrefix() string
 	Validate() error
 	DisplayServerConfig()
 	ReloadConfig() error
@@ -26,13 +27,14 @@ type SystemSettings struct {
 	EnableRequestBodyLogging       bool   `json:"enable_request_body_logging" default:"false" name:"config.enable_request_body_logging" category:"config.category.basic" desc:"config.enable_request_body_logging_desc"`
 
 	// 请求设置
-	RequestTimeout        int    `json:"request_timeout" default:"600" name:"config.request_timeout" category:"config.category.request" desc:"config.request_timeout_desc" validate:"required,min=1"`
-	ConnectTimeout        int    `json:"connect_timeout" default:"15" name:"config.connect_timeout" category:"config.category.request" desc:"config.connect_timeout_desc" validate:"required,min=1"`
-	IdleConnTimeout       int    `json:"idle_conn_timeout" default:"120" name:"config.idle_conn_timeout" category:"config.category.request" desc:"config.idle_conn_timeout_desc" validate:"required,min=1"`
-	ResponseHeaderTimeout int    `json:"response_header_timeout" default:"600" name:"config.response_header_timeout" category:"config.category.request" desc:"config.response_header_timeout_desc" validate:"required,min=1"`
-	MaxIdleConns          int    `json:"max_idle_conns" default:"100" name:"config.max_idle_conns" category:"config.category.request" desc:"config.max_idle_conns_desc" validate:"required,min=1"`
-	MaxIdleConnsPerHost   int    `json:"max_idle_conns_per_host" default:"50" name:"config.max_idle_conns_per_host" category:"config.category.request" desc:"config.max_idle_conns_per_host_desc" validate:"required,min=1"`
-	ProxyURL              string `json:"proxy_url" name:"config.proxy_url" category:"config.category.request" desc:"config.proxy_url_desc"`
+	RequestTimeout           int    `json:"request_timeout" default:"600" name:"config.request_timeout" category:"config.category.request" desc:"config.request_timeout_desc" validate:"required,min=1"`
+	ConnectTimeout           int    `json:"connect_timeout" default:"15" name:"config.connect_timeout" category:"config.category.request" desc:"config.connect_timeout_desc" validate:"required,min=1"`
+	IdleConnTimeout          int    `json:"idle_conn_timeout" default:"120" name:"config.idle_conn_timeout" category:"config.category.request" desc:"config.idle_conn_timeout_desc" validate:"required,min=1"`
+	ResponseHeaderTimeout    int    `json:"response_header_timeout" default:"600" name:"config.response_header_timeout" category:"config.category.request" desc:"config.response_header_timeout_desc" validate:"required,min=1"`
+	MaxIdleConns             int    `json:"max_idle_conns" default:"100" name:"config.max_idle_conns" category:"config.category.request" desc:"config.max_idle_conns_desc" validate:"required,min=1"`
+	MaxIdleConnsPerHost      int    `json:"max_idle_conns_per_host" default:"50" name:"config.max_idle_conns_per_host" category:"config.category.request" desc:"config.max_idle_conns_per_host_desc" validate:"required,min=1"`
+	ProxyURL                 string `json:"proxy_url" name:"config.proxy_url" category:"config.category.request" desc:"config.proxy_url_desc"`
+	IFlowQueueTimeoutSeconds int    `json:"iflow_queue_timeout_seconds" default:"600" name:"config.iflow_queue_timeout" category:"config.category.request" desc:"config.iflow_queue_timeout_desc" validate:"required,min=1"`
 
 	// 密钥配置
 	MaxRetries                   int `json:"max_retries" default:"3" name:"config.max_retries" category:"config.category.key" desc:"config.max_retries_desc" validate:"required,min=0"`
@@ -40,6 +42,12 @@ type SystemSettings struct {
 	KeyValidationIntervalMinutes int `json:"key_validation_interval_minutes" default:"60" name:"config.key_validation_interval" category:"config.category.key" desc:"config.key_validation_interval_desc" validate:"required,min=1"`
 	KeyValidationConcurrency     int `json:"key_validation_concurrency" default:"10" name:"config.key_validation_concurrency" category:"config.category.key" desc:"config.key_validation_concurrency_desc" validate:"required,min=1"`
 	KeyValidationTimeoutSeconds  int `json:"key_validation_timeout_seconds" default:"20" name:"config.key_validation_timeout" category:"config.category.key" desc:"config.key_validation_timeout_desc" validate:"required,min=1"`
+
+	// 限流配置
+	RpmLimit       int    `json:"rpm_limit" default:"0" name:"config.rpm_limit" category:"config.category.rate_limit" desc:"config.rpm_limit_desc" validate:"min=0"`
+	DailyLimit     int    `json:"daily_limit" default:"0" name:"config.daily_limit" category:"config.category.rate_limit" desc:"config.daily_limit_desc" validate:"min=0"`
+	RateLimitScope string `json:"rate_limit_scope" default:"channel" name:"config.rate_limit_scope" category:"config.category.rate_limit" desc:"config.rate_limit_scope_desc"`
+	DailyResetHour int    `json:"daily_reset_hour" default:"0" name:"config.daily_reset_hour" category:"config.category.rate_limit" desc:"config.daily_reset_hour_desc" validate:"min=0"`
 
 	// For cache
 	ProxyKeysMap map[string]struct{} `json:"-"`

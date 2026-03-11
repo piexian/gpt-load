@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gpt-load/internal/encryption"
+	iflowcred "gpt-load/internal/iflow"
 	"gpt-load/internal/keypool"
 	"gpt-load/internal/models"
 	"io"
@@ -61,7 +62,11 @@ func NewKeyService(db *gorm.DB, keyProvider *keypool.KeyProvider, keyValidator *
 // AddMultipleKeys handles the business logic of creating new keys from a text block.
 // deprecated: use KeyImportService for large imports
 func (s *KeyService) AddMultipleKeys(groupID uint, keysText string) (*AddKeysResult, error) {
-	keys := s.ParseKeysFromText(keysText)
+	channelType, err := s.getGroupChannelType(groupID)
+	if err != nil {
+		return nil, err
+	}
+	keys := s.ParseKeysFromTextWithChannel(channelType, keysText)
 	if len(keys) > maxRequestKeys {
 		return nil, fmt.Errorf("batch size exceeds the limit of %d keys, got %d", maxRequestKeys, len(keys))
 	}
@@ -157,6 +162,14 @@ func (s *KeyService) processAndCreateKeys(
 	return addedCount, len(keys) - addedCount, nil
 }
 
+func (s *KeyService) getGroupChannelType(groupID uint) (string, error) {
+	var group models.Group
+	if err := s.DB.Select("channel_type").First(&group, groupID).Error; err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(group.ChannelType), nil
+}
+
 // ParseKeysFromText parses a string of keys from various formats into a string slice.
 // This function is exported to be shared with the handler layer.
 func (s *KeyService) ParseKeysFromText(text string) []string {
@@ -175,6 +188,38 @@ func (s *KeyService) ParseKeysFromText(text string) []string {
 		key = strings.TrimSpace(key)
 		if key != "" {
 			keys = append(keys, key)
+		}
+	}
+
+	return s.filterValidKeys(keys)
+}
+
+func (s *KeyService) ParseKeysFromTextWithChannel(channelType string, text string) []string {
+	if strings.EqualFold(channelType, "iflow") {
+		return s.parseIFlowKeysFromText(text)
+	}
+	return s.ParseKeysFromText(text)
+}
+
+func (s *KeyService) parseIFlowKeysFromText(text string) []string {
+	var keys []string
+
+	if json.Unmarshal([]byte(text), &keys) == nil && len(keys) > 0 {
+		normalized := make([]string, 0, len(keys))
+		for _, key := range keys {
+			if v := iflowcred.NormalizeBXAuthValue(key); strings.TrimSpace(v) != "" {
+				normalized = append(normalized, v)
+			}
+		}
+		return s.filterValidKeys(normalized)
+	}
+
+	delimiters := regexp.MustCompile(`[\s,\n\r\t]+`)
+	splitKeys := delimiters.Split(strings.TrimSpace(text), -1)
+
+	for _, key := range splitKeys {
+		if v := iflowcred.NormalizeBXAuthValue(key); strings.TrimSpace(v) != "" {
+			keys = append(keys, v)
 		}
 	}
 
@@ -200,7 +245,11 @@ func (s *KeyService) isValidKeyFormat(key string) bool {
 
 // RestoreMultipleKeys handles the business logic of restoring keys from a text block.
 func (s *KeyService) RestoreMultipleKeys(groupID uint, keysText string) (*RestoreKeysResult, error) {
-	keysToRestore := s.ParseKeysFromText(keysText)
+	channelType, err := s.getGroupChannelType(groupID)
+	if err != nil {
+		return nil, err
+	}
+	keysToRestore := s.ParseKeysFromTextWithChannel(channelType, keysText)
 	if len(keysToRestore) > maxRequestKeys {
 		return nil, fmt.Errorf("batch size exceeds the limit of %d keys, got %d", maxRequestKeys, len(keysToRestore))
 	}
@@ -253,7 +302,11 @@ func (s *KeyService) ClearAllKeys(groupID uint) (int64, error) {
 
 // DeleteMultipleKeys handles the business logic of deleting keys from a text block.
 func (s *KeyService) DeleteMultipleKeys(groupID uint, keysText string) (*DeleteKeysResult, error) {
-	keysToDelete := s.ParseKeysFromText(keysText)
+	channelType, err := s.getGroupChannelType(groupID)
+	if err != nil {
+		return nil, err
+	}
+	keysToDelete := s.ParseKeysFromTextWithChannel(channelType, keysText)
 	if len(keysToDelete) > maxRequestKeys {
 		return nil, fmt.Errorf("batch size exceeds the limit of %d keys, got %d", maxRequestKeys, len(keysToDelete))
 	}
@@ -313,7 +366,7 @@ func (s *KeyService) ListKeysInGroupQuery(groupID uint, statusFilter string, sea
 
 // TestMultipleKeys handles a one-off validation test for multiple keys.
 func (s *KeyService) TestMultipleKeys(group *models.Group, keysText string) ([]keypool.KeyTestResult, error) {
-	keysToTest := s.ParseKeysFromText(keysText)
+	keysToTest := s.ParseKeysFromTextWithChannel(group.ChannelType, keysText)
 	if len(keysToTest) > maxRequestKeys {
 		return nil, fmt.Errorf("batch size exceeds the limit of %d keys, got %d", maxRequestKeys, len(keysToTest))
 	}

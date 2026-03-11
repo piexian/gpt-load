@@ -41,3 +41,9 @@ type ChannelProxy interface {
 	// TransformModelList transforms the model list response based on redirect rules.
 	TransformModelList(req *http.Request, bodyBytes []byte, group *models.Group) (map[string]any, error)
 }
+
+// RequestPreparer allows channels to inject dynamic credentials before the
+// standard ModifyRequest step runs.
+type RequestPreparer interface {
+	PrepareRequest(req *http.Request, apiKey *models.APIKey, group *models.Group) error
+}

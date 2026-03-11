@@ -33,7 +33,7 @@ func NewKeyDeleteService(taskService *TaskService, keyService *KeyService) *KeyD
 
 // StartDeleteTask initiates a new asynchronous key deletion task.
 func (s *KeyDeleteService) StartDeleteTask(group *models.Group, keysText string) (*TaskStatus, error) {
-	keys := s.KeyService.ParseKeysFromText(keysText)
+	keys := s.KeyService.ParseKeysFromTextWithChannel(group.ChannelType, keysText)
 	if len(keys) == 0 {
 		return nil, fmt.Errorf("no valid keys found in the input text")
 	}

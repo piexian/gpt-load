@@ -29,7 +29,7 @@ func NewKeyImportService(taskService *TaskService, keyService *KeyService) *KeyI
 
 // StartImportTask initiates a new asynchronous key import task.
 func (s *KeyImportService) StartImportTask(group *models.Group, keysText string) (*TaskStatus, error) {
-	keys := s.KeyService.ParseKeysFromText(keysText)
+	keys := s.KeyService.ParseKeysFromTextWithChannel(group.ChannelType, keysText)
 	if len(keys) == 0 {
 		return nil, fmt.Errorf("no valid keys found in the input text")
 	}

@@ -49,6 +49,7 @@ type Config struct {
 	Log           types.LogConfig
 	Database      types.DatabaseConfig
 	RedisDSN      string
+	RedisPrefix   string
 	EncryptionKey string
 }
 
@@ -102,6 +103,7 @@ func (m *Manager) ReloadConfig() error {
 			DSN: utils.GetEnvOrDefault("DATABASE_DSN", "./data/gpt-load.db"),
 		},
 		RedisDSN:      os.Getenv("REDIS_DSN"),
+		RedisPrefix:   utils.GetEnvOrDefault("REDIS_PREFIX", "gpt-load:"),
 		EncryptionKey: os.Getenv("ENCRYPTION_KEY"),
 	}
 	m.config = config
@@ -142,6 +144,11 @@ func (m *Manager) GetLogConfig() types.LogConfig {
 // GetRedisDSN returns the Redis DSN string.
 func (m *Manager) GetRedisDSN() string {
 	return m.config.RedisDSN
+}
+
+// GetRedisPrefix returns the Redis key prefix.
+func (m *Manager) GetRedisPrefix() string {
+	return m.config.RedisPrefix
 }
 
 // GetDatabaseConfig returns the database configuration.

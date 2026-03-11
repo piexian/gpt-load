@@ -13,10 +13,14 @@ FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS builder2
 ARG VERSION=1.0.0
 ARG TARGETOS
 ARG TARGETARCH
+ARG GOPROXY=https://goproxy.cn,direct
 ENV GO111MODULE=on \
-    CGO_ENABLED=0
+    CGO_ENABLED=0 \
+    GOPROXY=${GOPROXY}
 
 WORKDIR /build
+
+RUN apk add --no-cache git
 
 COPY go.mod go.sum ./
 RUN go mod download

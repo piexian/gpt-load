@@ -1,17 +1,21 @@
 services:
   gpt-load:
-    image: ghcr.io/tbphp/gpt-load:latest
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
-    container_name: gpt-load
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gpt-load:local
+    container_name: gpt-load-app
     ports:
       - "${PORT:-3001}:${PORT:-3001}"
     env_file:
       - .env
+    environment:
+      DATABASE_DSN: "${DATABASE_DSN:-./data/gpt-load.db}"
     restart: always
     volumes:
       - ./data:/app/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     stop_grace_period: ${SERVER_GRACEFUL_SHUTDOWN_TIMEOUT:-10}s
     healthcheck:
       test: wget -q --spider -T 10 -O /dev/null http://localhost:${PORT:-3001}/health

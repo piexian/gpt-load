@@ -414,6 +414,7 @@ export default {
     deleteKeysFromGroup: "Delete keys from {group}",
     currentGroup: "current group",
     enterKeysPlaceholder: "Enter keys, one per line",
+    enterIFlowKeysPlaceholder: "Enter BXAuth values (only the part after BXAuth=), one per line",
     enterKeysToDeletePlaceholder: "Enter keys to delete, one per line",
     group: "Group",
     notesUpdated: "Notes updated",

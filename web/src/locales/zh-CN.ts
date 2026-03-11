@@ -398,6 +398,7 @@ export default {
     deleteKeysFromGroup: "删除 {group} 的密钥",
     currentGroup: "当前分组",
     enterKeysPlaceholder: "输入密钥，每行一个",
+    enterIFlowKeysPlaceholder: "输入 BXAuth 值（只填 BXAuth= 后面的内容），每行一个",
     enterKeysToDeletePlaceholder: "输入要删除的密钥，每行一个",
     group: "分组",
     notesUpdated: "备注已更新",

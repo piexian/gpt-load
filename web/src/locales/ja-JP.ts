@@ -414,6 +414,7 @@ export default {
     deleteKeysFromGroup: "{group} からキーを削除",
     currentGroup: "現在のグループ",
     enterKeysPlaceholder: "キーを入力、一行に一つ",
+    enterIFlowKeysPlaceholder: "BXAuth の値（BXAuth= の後ろだけ）を入力、一行に一つ",
     enterKeysToDeletePlaceholder: "削除するキーを入力、一行に一つ",
     group: "グループ",
     notesUpdated: "備考が更新されました",

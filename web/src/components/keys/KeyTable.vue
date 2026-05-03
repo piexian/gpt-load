@@ -832,6 +832,7 @@ function resetPage() {
       v-model:show="createDialogShow"
       :group-id="selectedGroup.id"
       :group-name="getGroupDisplayName(selectedGroup!)"
+      :channel-type="selectedGroup.channel_type"
       @success="loadKeys"
     />
 
@@ -840,6 +841,7 @@ function resetPage() {
       v-model:show="deleteDialogShow"
       :group-id="selectedGroup.id"
       :group-name="getGroupDisplayName(selectedGroup!)"
+      :channel-type="selectedGroup.channel_type"
       @success="handleBatchDeleteSuccess"
     />
   </div>

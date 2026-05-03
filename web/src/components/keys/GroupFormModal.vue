@@ -67,7 +67,7 @@ interface GroupFormData {
   display_name: string;
   description: string;
   upstreams: UpstreamInfo[];
-  channel_type: "anthropic" | "gemini" | "openai" | "openai-response";
+  channel_type: "anthropic" | "gemini" | "openai" | "openai-response" | "iflow";
   sort: number;
   test_model: string;
   validation_endpoint: string;
@@ -127,6 +127,8 @@ const testModelPlaceholder = computed(() => {
       return "gemini-2.0-flash-lite";
     case "anthropic":
       return "claude-3-haiku-20240307";
+    case "iflow":
+      return "glm-4.7";
     default:
       return t("keys.enterModelName");
   }
@@ -141,6 +143,8 @@ const upstreamPlaceholder = computed(() => {
       return "https://generativelanguage.googleapis.com";
     case "anthropic":
       return "https://api.anthropic.com";
+    case "iflow":
+      return "https://apis.iflow.cn";
     default:
       return t("keys.enterUpstreamUrl");
   }
@@ -154,6 +158,8 @@ const validationEndpointPlaceholder = computed(() => {
       return "/v1/responses";
     case "anthropic":
       return "/v1/messages";
+    case "iflow":
+      return "/v1/chat/completions";
     case "gemini":
       return ""; // Gemini 不显示此字段
     default:
@@ -256,6 +262,8 @@ function getOldDefaultTestModel(channelType: string): string {
       return "gemini-2.0-flash-lite";
     case "anthropic":
       return "claude-3-haiku-20240307";
+    case "iflow":
+      return "glm-4.7";
     default:
       return "";
   }
@@ -270,6 +278,8 @@ function getOldDefaultUpstream(channelType: string): string {
       return "https://generativelanguage.googleapis.com";
     case "anthropic":
       return "https://api.anthropic.com";
+    case "iflow":
+      return "https://apis.iflow.cn";
     default:
       return "";
   }

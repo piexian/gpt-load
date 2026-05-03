@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gpt-load/internal/config"
 	"gpt-load/internal/httpclient"
+	"gpt-load/internal/iflow"
 	"gpt-load/internal/models"
 	"gpt-load/internal/utils"
 	"net/url"
@@ -43,6 +44,7 @@ func GetChannels() []string {
 type Factory struct {
 	settingsManager *config.SystemSettingsManager
 	clientManager   *httpclient.HTTPClientManager
+	iflowManager    *iflow.CredentialManager
 	channelCache    map[uint]ChannelProxy
 	cacheLock       sync.Mutex
 }
@@ -52,6 +54,7 @@ func NewFactory(settingsManager *config.SystemSettingsManager, clientManager *ht
 	return &Factory{
 		settingsManager: settingsManager,
 		clientManager:   clientManager,
+		iflowManager:    iflow.NewCredentialManager(clientManager),
 		channelCache:    make(map[uint]ChannelProxy),
 	}
 }

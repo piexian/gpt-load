@@ -3,13 +3,14 @@ import { keysApi } from "@/api/keys";
 import { appState } from "@/utils/app-state";
 import { Close, CloudUploadOutline } from "@vicons/ionicons5";
 import { NButton, NCard, NInput, NModal, NUpload, type UploadFileInfo } from "naive-ui";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 interface Props {
   show: boolean;
   groupId: number;
   groupName?: string;
+  channelType?: string;
 }
 
 interface Emits {
@@ -27,6 +28,12 @@ const loading = ref(false);
 const keysText = ref("");
 const inputMode = ref<"text" | "file">("text");
 const fileList = ref<UploadFileInfo[]>([]);
+
+const inputPlaceholder = computed(() => {
+  return props.channelType === "iflow"
+    ? t("keys.enterIFlowKeysPlaceholder")
+    : t("keys.enterKeysPlaceholder");
+});
 
 // 监听弹窗显示状态
 watch(
@@ -143,7 +150,7 @@ function isSubmitDisabled() {
         v-if="inputMode === 'text'"
         v-model:value="keysText"
         type="textarea"
-        :placeholder="t('keys.enterKeysPlaceholder')"
+        :placeholder="inputPlaceholder"
         :rows="8"
         style="margin-top: 20px"
       />

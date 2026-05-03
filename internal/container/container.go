@@ -11,6 +11,7 @@ import (
 	"gpt-load/internal/httpclient"
 	"gpt-load/internal/keypool"
 	"gpt-load/internal/proxy"
+	"gpt-load/internal/ratelimit"
 	"gpt-load/internal/router"
 	"gpt-load/internal/services"
 	"gpt-load/internal/store"
@@ -92,6 +93,9 @@ func BuildContainer() (*dig.Container, error) {
 		return nil, err
 	}
 	if err := container.Provide(keypool.NewCronChecker); err != nil {
+		return nil, err
+	}
+	if err := container.Provide(ratelimit.New); err != nil {
 		return nil, err
 	}
 

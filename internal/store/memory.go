@@ -320,6 +320,61 @@ func (s *MemoryStore) LLen(key string) (int64, error) {
 	return int64(len(list)), nil
 }
 
+// IncrWithTTL atomically increments a counter key by 1. If the key does not
+// exist it is created with value 1 and the given TTL; if it already exists the
+// TTL is not changed. Returns the new value.
+func (s *MemoryStore) IncrWithTTL(key string, ttl time.Duration) (int64, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	rawItem, exists := s.data[key]
+	if exists {
+		if item, ok := rawItem.(memoryStoreItem); ok {
+			if item.expiresAt == 0 || time.Now().UnixNano() < item.expiresAt {
+				// Key exists and is alive — increment without changing TTL
+				currentVal, _ := strconv.ParseInt(string(item.value), 10, 64)
+				newVal := currentVal + 1
+				s.data[key] = memoryStoreItem{value: []byte(strconv.FormatInt(newVal, 10)), expiresAt: item.expiresAt}
+				return newVal, nil
+			}
+			// Expired — fall through to create fresh
+		}
+	}
+
+	// Key does not exist (or expired) — create with value 1 and TTL
+	var expiresAt int64
+	if ttl > 0 {
+		expiresAt = time.Now().UnixNano() + ttl.Nanoseconds()
+	}
+	s.data[key] = memoryStoreItem{value: []byte("1"), expiresAt: expiresAt}
+	return 1, nil
+}
+
+// DecrCounter atomically decrements a counter key by 1, flooring at 0.
+func (s *MemoryStore) DecrCounter(key string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	rawItem, exists := s.data[key]
+	if !exists {
+		return nil
+	}
+	item, ok := rawItem.(memoryStoreItem)
+	if !ok {
+		return nil
+	}
+	if item.expiresAt != 0 && time.Now().UnixNano() >= item.expiresAt {
+		return nil
+	}
+	currentVal, _ := strconv.ParseInt(string(item.value), 10, 64)
+	newVal := currentVal - 1
+	if newVal < 0 {
+		newVal = 0
+	}
+	s.data[key] = memoryStoreItem{value: []byte(strconv.FormatInt(newVal, 10)), expiresAt: item.expiresAt}
+	return nil
+}
+
 // --- SET operations ---
 
 // SAdd adds members to a set.

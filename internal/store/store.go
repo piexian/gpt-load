@@ -51,6 +51,14 @@ type Store interface {
 	Rotate(key string) (string, error)
 	LLen(key string) (int64, error)
 
+	// IncrWithTTL atomically increments key by 1. If the key does not exist it is
+	// created with value 1 and the given TTL; if the key already exists the TTL is
+	// left unchanged. Returns the new value after increment.
+	IncrWithTTL(key string, ttl time.Duration) (int64, error)
+
+	// DecrCounter atomically decrements key by 1, flooring at 0.
+	DecrCounter(key string) error
+
 	// SET operations
 	SAdd(key string, members ...any) error
 	SPopN(key string, count int64) ([]string, error)

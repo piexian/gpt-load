@@ -24,7 +24,7 @@ func NewStore(cfg types.ConfigManager) (Store, error) {
 		}
 
 		logrus.Debug("Successfully connected to Redis.")
-		return NewRedisStore(client), nil
+		return NewRedisStore(client, cfg.GetRedisPrefix()), nil
 	}
 
 	logrus.Info("Redis DSN not configured, falling back to in-memory store.")

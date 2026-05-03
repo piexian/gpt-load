@@ -3,13 +3,14 @@ import { keysApi } from "@/api/keys";
 import { appState } from "@/utils/app-state";
 import { Close } from "@vicons/ionicons5";
 import { NButton, NCard, NInput, NModal } from "naive-ui";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 interface Props {
   show: boolean;
   groupId: number;
   groupName?: string;
+  channelType?: string;
 }
 
 interface Emits {
@@ -25,6 +26,12 @@ const { t } = useI18n();
 
 const loading = ref(false);
 const keysText = ref("");
+
+const inputPlaceholder = computed(() => {
+  return props.channelType === "iflow"
+    ? t("keys.enterIFlowKeysPlaceholder")
+    : t("keys.enterKeysToDeletePlaceholder");
+});
 
 // 监听弹窗显示状态
 watch(
@@ -88,7 +95,7 @@ async function handleSubmit() {
       <n-input
         v-model:value="keysText"
         type="textarea"
-        :placeholder="t('keys.enterKeysToDeletePlaceholder')"
+        :placeholder="inputPlaceholder"
         :rows="8"
         style="margin-top: 20px"
       />

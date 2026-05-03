@@ -32,12 +32,17 @@ type GroupConfig struct {
 	MaxIdleConnsPerHost          *int    `json:"max_idle_conns_per_host,omitempty"`
 	ResponseHeaderTimeout        *int    `json:"response_header_timeout,omitempty"`
 	ProxyURL                     *string `json:"proxy_url,omitempty"`
+	IFlowQueueTimeoutSeconds     *int    `json:"iflow_queue_timeout_seconds,omitempty"`
 	MaxRetries                   *int    `json:"max_retries,omitempty"`
 	BlacklistThreshold           *int    `json:"blacklist_threshold,omitempty"`
 	KeyValidationIntervalMinutes *int    `json:"key_validation_interval_minutes,omitempty"`
 	KeyValidationConcurrency     *int    `json:"key_validation_concurrency,omitempty"`
 	KeyValidationTimeoutSeconds  *int    `json:"key_validation_timeout_seconds,omitempty"`
 	EnableRequestBodyLogging     *bool   `json:"enable_request_body_logging,omitempty"`
+	RpmLimit                     *int    `json:"rpm_limit,omitempty"`
+	DailyLimit                   *int    `json:"daily_limit,omitempty"`
+	RateLimitScope               *string `json:"rate_limit_scope,omitempty"`
+	DailyResetHour               *int    `json:"daily_reset_hour,omitempty"`
 }
 
 // HeaderRule defines a single rule for header manipulation.

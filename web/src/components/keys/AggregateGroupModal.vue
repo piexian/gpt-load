@@ -46,6 +46,7 @@ const channelTypeOptions = [
   { label: "OpenAI Response", value: "openai-response" as ChannelType },
   { label: "Gemini", value: "gemini" as ChannelType },
   { label: "Anthropic", value: "anthropic" as ChannelType },
+  { label: "iFlow", value: "iflow" as ChannelType },
 ];
 
 // 默认表单数据

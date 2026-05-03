@@ -10,22 +10,20 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// RedisKeyPrefix is the prefix for all Redis keys used by GPT-Load
-const RedisKeyPrefix = "gpt-load:"
-
 // RedisStore is a Redis-backed key-value store.
 type RedisStore struct {
-	client *redis.Client
+	client    *redis.Client
+	keyPrefix string
 }
 
 // NewRedisStore creates a new RedisStore instance.
-func NewRedisStore(client *redis.Client) *RedisStore {
-	return &RedisStore{client: client}
+func NewRedisStore(client *redis.Client, prefix string) *RedisStore {
+	return &RedisStore{client: client, keyPrefix: prefix}
 }
 
 // prefixKey adds the application prefix to a key
 func (s *RedisStore) prefixKey(key string) string {
-	return RedisKeyPrefix + key
+	return s.keyPrefix + key
 }
 
 // prefixKeys adds the application prefix to multiple keys
@@ -137,6 +135,40 @@ func (s *RedisStore) SPopN(key string, count int64) ([]string, error) {
 	return s.client.SPopN(context.Background(), s.prefixKey(key), count).Result()
 }
 
+// IncrWithTTL atomically increments key by 1 and sets the TTL only when the key
+// is newly created (INCR returns 1). This avoids resetting the TTL on every
+// increment while still expiring the counter at the right time.
+func (s *RedisStore) IncrWithTTL(key string, ttl time.Duration) (int64, error) {
+	ctx := context.Background()
+	prefixedKey := s.prefixKey(key)
+
+	// INCR is atomic; if this is the first call the value will be 1
+	val, err := s.client.Incr(ctx, prefixedKey).Result()
+	if err != nil {
+		return 0, err
+	}
+	// Set TTL only on the first increment so subsequent increments don't
+	// reset (or remove) the expiry that was already set.
+	if val == 1 && ttl > 0 {
+		s.client.Expire(ctx, prefixedKey, ttl)
+	}
+	return val, nil
+}
+
+// DecrCounter atomically decrements a counter key by 1, flooring at 0.
+func (s *RedisStore) DecrCounter(key string) error {
+	ctx := context.Background()
+	prefixedKey := s.prefixKey(key)
+	val, err := s.client.Decr(ctx, prefixedKey).Result()
+	if err != nil {
+		return err
+	}
+	if val < 0 {
+		s.client.Set(ctx, prefixedKey, 0, 0)
+	}
+	return nil
+}
+
 // --- Pipeliner implementation ---
 
 type redisPipeliner struct {
@@ -223,7 +255,7 @@ func (s *RedisStore) Clear() error {
 
 	for {
 		// Scan for keys with our prefix, 1000 at a time
-		keys, nextCursor, err := s.client.Scan(ctx, cursor, RedisKeyPrefix+"*", 10000).Result()
+		keys, nextCursor, err := s.client.Scan(ctx, cursor, s.keyPrefix+"*", 10000).Result()
 		if err != nil {
 			return fmt.Errorf("failed to scan keys: %w", err)
 		}

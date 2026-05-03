@@ -17,8 +17,10 @@ import (
 	app_errors "gpt-load/internal/errors"
 	"gpt-load/internal/keypool"
 	"gpt-load/internal/models"
+	"gpt-load/internal/ratelimit"
 	"gpt-load/internal/response"
 	"gpt-load/internal/services"
+	"gpt-load/internal/types"
 	"gpt-load/internal/utils"
 
 	"github.com/gin-gonic/gin"
@@ -34,6 +36,8 @@ type ProxyServer struct {
 	channelFactory    *channel.Factory
 	requestLogService *services.RequestLogService
 	encryptionSvc     encryption.Service
+	rateLimiter       *ratelimit.RateLimiter
+	iflowQueue        *iflowQueueManager
 }
 
 // NewProxyServer creates a new proxy server
@@ -45,6 +49,7 @@ func NewProxyServer(
 	channelFactory *channel.Factory,
 	requestLogService *services.RequestLogService,
 	encryptionSvc encryption.Service,
+	rateLimiter *ratelimit.RateLimiter,
 ) (*ProxyServer, error) {
 	return &ProxyServer{
 		keyProvider:       keyProvider,
@@ -54,6 +59,8 @@ func NewProxyServer(
 		channelFactory:    channelFactory,
 		requestLogService: requestLogService,
 		encryptionSvc:     encryptionSvc,
+		rateLimiter:       rateLimiter,
+		iflowQueue:        newIFlowQueueManager(),
 	}, nil
 }
 
@@ -110,6 +117,11 @@ func (ps *ProxyServer) HandleProxy(c *gin.Context) {
 
 	isStream := channelHandler.IsStreamRequest(c, bodyBytes)
 
+	if group.ChannelType == "iflow" {
+		ps.executeIFlowWithQueue(c, channelHandler, originalGroup, group, finalBodyBytes, isStream, startTime)
+		return
+	}
+
 	ps.executeRequestWithRetry(c, channelHandler, originalGroup, group, finalBodyBytes, isStream, startTime, 0)
 }
 
@@ -126,12 +138,48 @@ func (ps *ProxyServer) executeRequestWithRetry(
 ) {
 	cfg := group.EffectiveConfig
 
+	// Channel-level rate limit check (before key selection)
+	if cfg.RateLimitScope == "channel" && (cfg.RpmLimit > 0 || cfg.DailyLimit > 0) {
+		if err := ps.rateLimiter.CheckChannel(group.ID, cfg); err != nil {
+			ps.logRequest(c, originalGroup, group, nil, startTime, 408, err, isStream, "", channelHandler, bodyBytes, models.RequestTypeFinal)
+			c.JSON(408, gin.H{
+				"error": gin.H{
+					"message": "额度已用尽，请明天再试",
+					"type":    "rate_limit_exceeded",
+					"code":    408,
+				},
+			})
+			return
+		}
+	}
+
 	apiKey, err := ps.keyProvider.SelectKey(group.ID)
 	if err != nil {
 		logrus.Errorf("Failed to select a key for group %s on attempt %d: %v", group.Name, retryCount+1, err)
 		response.Error(c, app_errors.NewAPIError(app_errors.ErrNoKeysAvailable, err.Error()))
 		ps.logRequest(c, originalGroup, group, nil, startTime, http.StatusServiceUnavailable, err, isStream, "", channelHandler, bodyBytes, models.RequestTypeFinal)
+		ps.rollbackRateLimit(group, nil, cfg)
 		return
+	}
+
+	// Key-level rate limit check (after key selection, before making the request)
+	if cfg.RateLimitScope == "key" && (cfg.RpmLimit > 0 || cfg.DailyLimit > 0) {
+		if exceeded, _ := ps.rateLimiter.CheckKey(apiKey.ID, cfg); exceeded {
+			// Do not count this as a key failure — just rotate to the next key
+			if retryCount >= cfg.MaxRetries {
+				ps.logRequest(c, originalGroup, group, apiKey, startTime, 408, ratelimit.ErrRateLimitExceeded, isStream, "", channelHandler, bodyBytes, models.RequestTypeFinal)
+				c.JSON(408, gin.H{
+					"error": gin.H{
+						"message": "额度已用尽，请明天再试",
+						"type":    "rate_limit_exceeded",
+						"code":    408,
+					},
+				})
+				return
+			}
+			ps.executeRequestWithRetry(c, channelHandler, originalGroup, group, bodyBytes, isStream, startTime, retryCount+1)
+			return
+		}
 	}
 
 	upstreamURL, err := channelHandler.BuildUpstreamURL(c.Request.URL, originalGroup.Name)
@@ -202,6 +250,9 @@ func (ps *ProxyServer) executeRequestWithRetry(
 
 	// Unified error handling for retries. Exclude 404 from being a retryable error.
 	if err != nil || (resp != nil && resp.StatusCode >= 400 && resp.StatusCode != http.StatusNotFound) {
+		// Rollback rate limit counters on failure
+		ps.rollbackRateLimit(group, apiKey, cfg)
+
 		if err != nil && app_errors.IsIgnorableError(err) {
 			logrus.Debugf("Client-side ignorable error for key %s, aborting retries: %v", utils.MaskAPIKey(apiKey.KeyValue), err)
 			ps.logRequest(c, originalGroup, group, apiKey, startTime, 499, err, isStream, upstreamURL, channelHandler, bodyBytes, models.RequestTypeFinal)
@@ -281,6 +332,16 @@ func (ps *ProxyServer) executeRequestWithRetry(
 	}
 
 	ps.logRequest(c, originalGroup, group, apiKey, startTime, resp.StatusCode, nil, isStream, upstreamURL, channelHandler, bodyBytes, models.RequestTypeFinal)
+}
+
+// rollbackRateLimit decrements the rate limit counters that were incremented before the request.
+func (ps *ProxyServer) rollbackRateLimit(group *models.Group, apiKey *models.APIKey, cfg types.SystemSettings) {
+	if cfg.RateLimitScope == "channel" && (cfg.RpmLimit > 0 || cfg.DailyLimit > 0) {
+		ps.rateLimiter.RollbackChannel(group.ID, cfg)
+	}
+	if cfg.RateLimitScope == "key" && apiKey != nil && (cfg.RpmLimit > 0 || cfg.DailyLimit > 0) {
+		ps.rateLimiter.RollbackKey(apiKey.ID, cfg)
+	}
 }
 
 // logRequest is a helper function to create and record a request log.

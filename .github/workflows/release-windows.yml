@@ -42,7 +42,7 @@ jobs:
         with:
           files: |
             gpt-load-windows-amd64.exe
-          draft: true
+          draft: false
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

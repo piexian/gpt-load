@@ -1,252 +1,239 @@
 # GPT-Load
 
-English | [中文](README_CN.md) | [日本語](README_JP.md)
-
-[![Release](https://img.shields.io/github/v/tag/tbphp/gpt-load?filter=v1.*)](https://github.com/tbphp/gpt-load/releases)
+[![Release](https://img.shields.io/github/v/release/piexian/gpt-load)](https://github.com/piexian/gpt-load/releases)
 ![Go Version](https://img.shields.io/badge/Go-1.26.10+-blue.svg)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-A high-performance, enterprise-grade AI API transparent proxy service designed specifically for enterprises and developers who need to integrate multiple AI services. Built with Go, featuring intelligent key management, load balancing, and comprehensive monitoring capabilities, designed for high-concurrency production environments.
+一个高性能、企业级的 AI 接口透明代理服务，专门为需要集成多种 AI 服务的企业和开发者设计。采用 Go 语言开发，具备智能密钥管理、负载均衡和完善的监控功能，专为高并发生产环境而设计。
 
-For more information, please visit the [Official Website](https://www.gpt-load.com/v1)
+> 本仓库是 [tbphp/gpt-load](https://github.com/tbphp/gpt-load) v1 分支的 fork，跟随上游 v1 安全维护更新，额外包含渠道限速与 iFlow 渠道定制。容器镜像发布于 `ghcr.io/piexian/gpt-load`，`latest` 即最新 v1 版本。
 
-<a href="https://trendshift.io/repositories/14880" target="_blank"><img src="https://trendshift.io/api/badge/repositories/14880" alt="tbphp%2Fgpt-load | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-<a href="https://hellogithub.com/repository/tbphp/gpt-load" target="_blank"><img src="https://api.hellogithub.com/v1/widgets/recommend.svg?rid=554dc4c46eb14092b9b0c56f1eb9021c&claim_uid=Qlh8vzrWJ0HCneG" alt="Featured｜HelloGitHub" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+详细请访问[官方网站](https://www.gpt-load.com/v1)
 
-## Sponsors
 
-<table>
-<tbody>
-<tr>
-<td width="180"><a href="https://go.apimart.ai/gh-gpt-load"><img src="./screenshot/apimart.png" alt="APIMart" width="150"></a></td>
-<td>Thanks to APIMart for sponsoring this project! APIMart is a low-cost API platform for AI image &amp; video generation — GPT-Image-2 from $0.006/image, 160+ images per dollar. One async API covers both image and video: submit a task, get an ID, fetch results via polling or callback. Batch tens of thousands of images without timeouts, switch models without changing code. Pay-as-you-go with no monthly fee — <a href="https://go.apimart.ai/gh-gpt-load">sign up here</a> to get started.</td>
-</tr>
-<tr>
-<td width="180" align="center"><a href="https://openai.com/"><img src="./screenshot/sponsor-openai.svg" alt="OpenAI" width="56"></a></td>
-<td>Thanks to OpenAI for sponsoring this project.</td>
-</tr>
-<tr>
-<td width="180"><a href="https://linux.do"><img src="./screenshot/l.png" alt="LINUX DO" width="150"></a></td>
-<td>Thank you very much for the support from the LINUX DO community!</td>
-</tr>
-<tr>
-<td width="180"><a href="https://www.digitalocean.com/?refcode=3d52cff21342&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg" alt="DigitalOcean Referral Badge" width="150"></a></td>
-<td>This project is supported by DigitalOcean.</td>
-</tr>
-</tbody>
-</table>
+## 功能特性
 
-## Features
+- **透明代理**: 完全保留原生 API 格式，支持 OpenAI、Google Gemini 和 Anthropic Claude 等多种格式
+- **智能密钥管理**: 高性能密钥池，支持分组管理、自动轮换和故障恢复
+- **负载均衡**: 支持多上游端点的加权负载均衡，提升服务可用性
+- **智能故障处理**: 自动密钥黑名单管理和恢复机制，确保服务连续性
+- **动态配置**: 系统设置和分组配置支持热重载，无需重启即可生效
+- **企业级架构**: 分布式主从部署，支持水平扩展和高可用
+- **现代化管理**: 基于 Vue 3 的 Web 管理界面，直观易用
+- **全面监控**: 实时统计、健康检查、详细请求日志
+- **高性能设计**: 零拷贝流式传输、连接池复用、原子操作
+- **生产就绪**: 优雅关闭、错误恢复、完善的安全机制
+- **双重认证体系**: 管理端与代理端认证分离，代理认证支持全局和分组级别密钥
 
-- **Transparent Proxy**: Complete preservation of native API formats, supporting OpenAI, Google Gemini, and Anthropic Claude among other formats
-- **Intelligent Key Management**: High-performance key pool with group-based management, automatic rotation, and failure recovery
-- **Load Balancing**: Weighted load balancing across multiple upstream endpoints to enhance service availability
-- **Smart Failure Handling**: Automatic key blacklist management and recovery mechanisms to ensure service continuity
-- **Dynamic Configuration**: System settings and group configurations support hot-reload without requiring restarts
-- **Enterprise Architecture**: Distributed leader-follower deployment supporting horizontal scaling and high availability
-- **Modern Management**: Vue 3-based web management interface that is intuitive and user-friendly
-- **Comprehensive Monitoring**: Real-time statistics, health checks, and detailed request logging
-- **High-Performance Design**: Zero-copy streaming, connection pool reuse, and atomic operations
-- **Production Ready**: Graceful shutdown, error recovery, and comprehensive security mechanisms
-- **Dual Authentication**: Separate authentication for management and proxy, with proxy authentication supporting global and group-level keys
+## 支持的 AI 服务
 
-## Supported AI Services
+GPT-Load 作为透明代理服务，完整保留各 AI 服务商的原生 API 格式：
 
-GPT-Load serves as a transparent proxy service, completely preserving the native API formats of various AI service providers:
+- **OpenAI 格式**: 官方 OpenAI API、Azure OpenAI、以及其他 OpenAI 兼容服务
+- **Google Gemini 格式**: Gemini Pro、Gemini Pro Vision 等模型的原生 API
+- **Anthropic Claude 格式**: Claude 系列模型，支持高质量的对话和文本生成
 
-- **OpenAI Format**: Official OpenAI API, Azure OpenAI, and other OpenAI-compatible services
-- **Google Gemini Format**: Native APIs for Gemini Pro, Gemini Pro Vision, and other models
-- **Anthropic Claude Format**: Claude series models, supporting high-quality conversations and text generation
+## 快速开始
 
-## Quick Start
+### 环境要求
 
-### System Requirements
+- Go 1.26.10+ (源码构建)
+- Docker (容器化部署)
+- MySQL, PostgreSQL, 或 SQLite (数据库存储)
+- Redis (缓存和分布式协调，可选)
 
-- Go 1.26.10+ (for source builds)
-- Docker (for containerized deployment)
-- MySQL, PostgreSQL, or SQLite (for database storage)
-- Redis (for caching and distributed coordination, optional)
-
-### Method 1: Docker Quick Start
+### 方式一：Docker 快速开始
 
 ```bash
 docker run -d --name gpt-load \
     -p 3001:3001 \
     -e AUTH_KEY=your-secure-key-here \
     -v "$(pwd)/data":/app/data \
-    ghcr.io/tbphp/gpt-load:1
+    ghcr.io/piexian/gpt-load:latest
 ```
 
-> Please change `your-secure-key-here` to a strong password (never use the default value), then you can log in to the management interface: <http://localhost:3001>
+> 请将 `your-secure-key-here` 改为强密码（决不能使用默认值），即可登录管理界面：<http://localhost:3001>
 
-> The stable Docker tag for the v1 maintenance line is `1`. v1 releases no longer update `latest`; after the transition period, `latest` may move to v2. Existing v1 deployments should pin the image to `:1`.
+### 方式二：使用 Docker Compose（推荐）
 
-### Method 2: Using Docker Compose (Recommended)
-
-**Installation Commands:**
+**安装命令：**
 
 ```bash
-# Create Directory
+# 创建目录
 mkdir -p gpt-load && cd gpt-load
 
-# Download configuration files
-wget https://raw.githubusercontent.com/tbphp/gpt-load/refs/heads/v1/docker-compose.yml
-wget -O .env https://raw.githubusercontent.com/tbphp/gpt-load/refs/heads/v1/.env.example
+# 创建 docker-compose.yml
+cat > docker-compose.yml <<'EOF'
+services:
+  gpt-load:
+    image: ghcr.io/piexian/gpt-load:latest
+    container_name: gpt-load
+    ports:
+      - "3001:3001"
+    env_file:
+      - .env
+    restart: always
+    volumes:
+      - ./data:/app/data
+EOF
 
-# Edit the .env file and change AUTH_KEY to a strong password. Never use default or simple keys like sk-123456.
+# 下载环境变量模板
+wget -O .env https://raw.githubusercontent.com/piexian/gpt-load/refs/heads/main/.env.example
 
-# Start services
+# 编辑 .env 文件，修改AUTH_KEY为强密码，绝不使用 sk-123456 等默认或者简单密钥
+
+# 启动服务
 docker compose up -d
 ```
 
-Before deployment, you must change the default admin key (AUTH_KEY). A recommended format is: sk-prod-[32-character random string].
+在部署之前，您必须修改默认的管理密钥 (AUTH_KEY)，建议密钥格式：sk-prod-[随机字符串32位]。
 
-The default installation uses the SQLite version, which is suitable for lightweight, single-instance applications.
+默认安装的是 SQLite 版本，适合轻量单机应用。
 
-If you need to install MySQL, PostgreSQL, and Redis, please uncomment the required services in the `docker-compose.yml` file, configure the corresponding environment variables, and restart.
+如需安装 MySQL, PostgreSQL 及 Redis，请自行在 `docker-compose.yml` 中添加对应服务并配置环境变量后重启。
 
-**Other Commands:**
+**其他命令：**
 
 ```bash
-# Check service status
+# 查看服务状态
 docker compose ps
 
-# View logs
+# 查看日志
 docker compose logs -f
 
-# Restart Service
+# 重启服务
 docker compose down && docker compose up -d
 
-# Update to the latest v1 version
+# 更新到最新版本
 docker compose pull && docker compose down && docker compose up -d
 ```
 
-After deployment:
+部署完成后：
 
-- Access Web Management Interface: <http://localhost:3001>
-- API Proxy Address: <http://localhost:3001/proxy>
+- 访问 Web 管理界面：<http://localhost:3001>
+- API 代理地址：<http://localhost:3001/proxy>
 
-> Use your modified AUTH_KEY to log in to the management interface.
+> 使用你修改的 AUTH_KEY 登录管理端。
 
-### Method 3: Source Build
+### 方式三：源码构建
 
-Source build requires a locally installed database (SQLite, MySQL, or PostgreSQL) and Redis (optional).
+源码构建需要本地已安装数据库（SQLite、MySQL 或 PostgreSQL）和 Redis（可选）。
 
 ```bash
-# Clone and build
-git clone https://github.com/tbphp/gpt-load.git
+# 克隆并构建
+git clone https://github.com/piexian/gpt-load.git
 cd gpt-load
 go mod tidy
 
-# Create configuration
+# 创建配置
 cp .env.example .env
 
-# Edit the .env file and change AUTH_KEY to a strong password. Never use default or simple keys like sk-123456.
-# Modify DATABASE_DSN and REDIS_DSN configurations in .env
-# REDIS_DSN is optional; if not configured, memory storage will be enabled
+# 编辑 .env 文件，修改AUTH_KEY为强密码，绝不使用 sk-123456 等默认或者简单密钥
+# 修改 .env 中 DATABASE_DSN 和 REDIS_DSN 配置
+# REDIS_DSN 为可选，如果不配置则启用内存存储
 
-# Run
+# 运行
 make run
 ```
 
-After deployment:
+部署完成后：
 
-- Access Web Management Interface: <http://localhost:3001>
-- API Proxy Address: <http://localhost:3001/proxy>
+- 访问 Web 管理界面：<http://localhost:3001>
+- API 代理地址：<http://localhost:3001/proxy>
 
-> Use your modified AUTH_KEY to log in to the management interface.
+> 使用你修改的 AUTH_KEY 登录管理端。
 
-### Method 4: Cluster Deployment
+### 方式四：集群部署
 
-Cluster deployment requires all nodes to connect to the same MySQL (or PostgreSQL) and Redis, with Redis being mandatory. It's recommended to use unified distributed MySQL and Redis clusters.
+集群部署需要所有节点都连接同一个 MySQL（或者 PostgreSQL） 和 Redis，并且 Redis 是必须要求。建议使用统一的分布式 MySQL 和 Redis 集群。
 
-**Deployment Requirements:**
+**部署要求：**
 
-- All nodes must configure identical `AUTH_KEY`, `DATABASE_DSN`, `REDIS_DSN`
-- Leader-follower architecture where follower nodes must configure environment variable: `IS_SLAVE=true`
+- 所有节点必须配置相同的 `AUTH_KEY`、`DATABASE_DSN`、`REDIS_DSN`
+- 一主多从架构，从节点必须配置环境变量：`IS_SLAVE=true`
 
-For details, please refer to [Cluster Deployment Documentation](https://www.gpt-load.com/docs/cluster?lang=en)
+详细请参考[集群部署文档](https://www.gpt-load.com/docs/cluster?lang=zh)
 
-## Configuration System
+## 配置系统
 
-### Configuration Architecture Overview
+### 配置架构概述
 
-GPT-Load adopts a dual-layer configuration architecture:
+GPT-Load 采用双层配置架构：
 
-#### 1. Static Configuration (Environment Variables)
+#### 1. 静态配置（环境变量）
 
-- **Characteristics**: Read at application startup, immutable during runtime, requires application restart to take effect
-- **Purpose**: Infrastructure configuration such as database connections, server ports, authentication keys, etc.
-- **Management**: Set via `.env` files or system environment variables
+- **特点**：应用启动时读取，运行期间不可修改，需重启应用生效
+- **用途**：基础设施配置，如数据库连接、服务器端口、认证密钥等
+- **管理方式**：通过 `.env` 文件或系统环境变量设置
 
-#### 2. Dynamic Configuration (Hot-Reload)
+#### 2. 动态配置（热重载）
 
-- **System Settings**: Stored in database, providing unified behavioral standards for the entire application
-- **Group Configuration**: Behavior parameters customized for specific groups, can override system settings
-- **Configuration Priority**: Group Configuration > System Settings > Environment Configuration
-- **Characteristics**: Supports hot-reload, takes effect immediately after modification without application restart
+- **系统设置**：存储在数据库中，为整个应用提供统一的行为基准
+- **分组配置**：为特定分组定制的行为参数，可覆盖系统设置
+- **配置优先级**：分组配置 > 系统设置 > 环境配置
+- **特点**：支持热重载，修改后立即生效，无需重启应用
 
 <details>
-<summary>Static Configuration (Environment Variables)</summary>
+<summary>静态配置（环境变量）</summary>
 
-**Server Configuration:**
+**服务器配置：**
 
-| Setting                   | Environment Variable               | Default         | Description                                     |
-| ------------------------- | ---------------------------------- | --------------- | ----------------------------------------------- |
-| Service Port              | `PORT`                             | 3001            | HTTP server listening port                      |
-| Service Address           | `HOST`                             | 0.0.0.0         | HTTP server binding address                     |
-| Read Timeout              | `SERVER_READ_TIMEOUT`              | 60              | HTTP server read timeout (seconds)              |
-| Write Timeout             | `SERVER_WRITE_TIMEOUT`             | 600             | HTTP server write timeout (seconds)             |
-| Idle Timeout              | `SERVER_IDLE_TIMEOUT`              | 120             | HTTP connection idle timeout (seconds)          |
-| Graceful Shutdown Timeout | `SERVER_GRACEFUL_SHUTDOWN_TIMEOUT` | 10              | Service graceful shutdown wait time (seconds)   |
-| Follower Mode             | `IS_SLAVE`                         | false           | Follower node identifier for cluster deployment |
-| Timezone                  | `TZ`                               | `Asia/Shanghai` | Specify timezone                                |
+| 配置项       | 环境变量                           | 默认值          | 说明                       |
+| ------------ | ---------------------------------- | --------------- | -------------------------- |
+| 服务端口     | `PORT`                             | 3001            | HTTP 服务器监听端口        |
+| 服务地址     | `HOST`                             | 0.0.0.0         | HTTP 服务器绑定地址        |
+| 读取超时     | `SERVER_READ_TIMEOUT`              | 60              | HTTP 服务器读取超时（秒）  |
+| 写入超时     | `SERVER_WRITE_TIMEOUT`             | 600             | HTTP 服务器写入超时（秒）  |
+| 空闲超时     | `SERVER_IDLE_TIMEOUT`              | 120             | HTTP 连接空闲超时（秒）    |
+| 优雅关闭超时 | `SERVER_GRACEFUL_SHUTDOWN_TIMEOUT` | 10              | 服务优雅关闭等待时间（秒） |
+| 从节点模式   | `IS_SLAVE`                         | false           | 集群部署时从节点标识       |
+| 时区         | `TZ`                               | `Asia/Shanghai` | 指定时区                   |
 
-**Security Configuration:**
+**安全配置：**
 
-| Setting        | Environment Variable | Default | Description                                                                                                                                      |
-| -------------- | -------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Admin Key      | `AUTH_KEY`           | -       | Access authentication key for the **management end**, please change it to a strong password                                                      |
-| Encryption Key | `ENCRYPTION_KEY`     | -       | Encrypts API keys at rest. Supports any string or leave empty to disable encryption. See [Data Encryption Migration](#data-encryption-migration) |
+| 配置项   | 环境变量         | 默认值 | 说明                                                                               |
+| -------- | ---------------- | ------ | ---------------------------------------------------------------------------------- |
+| 管理密钥 | `AUTH_KEY`       | -      | **管理端**的访问认证密钥，请修改为强密码                                           |
+| 加密密钥 | `ENCRYPTION_KEY` | -      | 加密存储的API密钥，支持任意字符串或留空禁用加密。参见[数据加密迁移](#数据加密迁移) |
 
-**Database Configuration:**
+**数据库配置：**
 
-| Setting             | Environment Variable | Default              | Description                                             |
-| ------------------- | -------------------- | -------------------- | ------------------------------------------------------- |
-| Database Connection | `DATABASE_DSN`       | `./data/gpt-load.db` | Database connection string (DSN) or file path           |
-| Redis Connection    | `REDIS_DSN`          | -                    | Redis connection string, uses memory storage when empty |
+| 配置项     | 环境变量       | 默认值             | 说明                                 |
+| ---------- | -------------- | ------------------ | ------------------------------------ |
+| 数据库连接 | `DATABASE_DSN` | ./data/gpt-load.db | 数据库连接字符串 (DSN) 或文件路径    |
+| Redis 连接 | `REDIS_DSN`    | -                  | Redis 连接字符串，为空时使用内存存储 |
 
-**Performance & CORS Configuration:**
+**性能与跨域配置：**
 
-| Setting                 | Environment Variable      | Default                       | Description                                     |
-| ----------------------- | ------------------------- | ----------------------------- | ----------------------------------------------- |
-| Max Concurrent Requests | `MAX_CONCURRENT_REQUESTS` | 100                           | Maximum concurrent requests allowed by system   |
-| Enable CORS             | `ENABLE_CORS`             | false                         | Whether to enable Cross-Origin Resource Sharing |
-| Allowed Origins         | `ALLOWED_ORIGINS`         | -                             | Allowed origins, comma-separated                |
-| Allowed Methods         | `ALLOWED_METHODS`         | `GET,POST,PUT,DELETE,OPTIONS` | Allowed HTTP methods                            |
-| Allowed Headers         | `ALLOWED_HEADERS`         | `*`                           | Allowed request headers, comma-separated        |
-| Allow Credentials       | `ALLOW_CREDENTIALS`       | false                         | Whether to allow sending credentials            |
+| 配置项       | 环境变量                  | 默认值                        | 说明                     |
+| ------------ | ------------------------- | ----------------------------- | ------------------------ |
+| 最大并发请求 | `MAX_CONCURRENT_REQUESTS` | 100                           | 系统允许的最大并发请求数 |
+| 启用 CORS    | `ENABLE_CORS`             | false                         | 是否启用跨域资源共享     |
+| 允许的来源   | `ALLOWED_ORIGINS`         | -                             | 允许的来源，逗号分隔     |
+| 允许的方法   | `ALLOWED_METHODS`         | `GET,POST,PUT,DELETE,OPTIONS` | 允许的 HTTP 方法         |
+| 允许的头部   | `ALLOWED_HEADERS`         | `*`                           | 允许的请求头，逗号分隔   |
+| 允许凭据     | `ALLOW_CREDENTIALS`       | false                         | 是否允许发送凭据         |
 
-**Logging Configuration:**
+**日志配置：**
 
-| Setting             | Environment Variable | Default               | Description                         |
-| ------------------- | -------------------- | --------------------- | ----------------------------------- |
-| Log Level           | `LOG_LEVEL`          | `info`                | Log level: debug, info, warn, error |
-| Log Format          | `LOG_FORMAT`         | `text`                | Log format: text, json              |
-| Enable File Logging | `LOG_ENABLE_FILE`    | false                 | Whether to enable file log output   |
-| Log File Path       | `LOG_FILE_PATH`      | `./data/logs/app.log` | Log file storage path               |
+| 配置项       | 环境变量          | 默认值                | 说明                               |
+| ------------ | ----------------- | --------------------- | ---------------------------------- |
+| 日志级别     | `LOG_LEVEL`       | `info`                | 日志级别：debug, info, warn, error |
+| 日志格式     | `LOG_FORMAT`      | `text`                | 日志格式：text, json               |
+| 启用文件日志 | `LOG_ENABLE_FILE` | false                 | 是否启用文件日志输出               |
+| 日志文件路径 | `LOG_FILE_PATH`   | `./data/logs/app.log` | 日志文件存储路径                   |
 
-**Proxy Configuration:**
+**代理配置：**
 
-GPT-Load automatically reads proxy settings from environment variables to make requests to upstream AI providers.
+GPT-Load 会自动从环境变量中读取代理设置，用于向上游 AI 服务商发起请求。
 
-| Setting     | Environment Variable | Default | Description                                                  |
-| ----------- | -------------------- | ------- | ------------------------------------------------------------ |
-| HTTP Proxy  | `HTTP_PROXY`         | -       | Proxy server address for HTTP requests                       |
-| HTTPS Proxy | `HTTPS_PROXY`        | -       | Proxy server address for HTTPS requests                      |
-| No Proxy    | `NO_PROXY`           | -       | Comma-separated list of hosts or domains to bypass the proxy |
+| 配置项     | 环境变量      | 默认值 | 说明                                     |
+| ---------- | ------------- | ------ | ---------------------------------------- |
+| HTTP 代理  | `HTTP_PROXY`  | -      | 用于 HTTP 请求的代理服务器地址           |
+| HTTPS 代理 | `HTTPS_PROXY` | -      | 用于 HTTPS 请求的代理服务器地址          |
+| 无代理     | `NO_PROXY`    | -      | 不需要通过代理访问的主机或域名，逗号分隔 |
 
-Supported Proxy Protocol Formats:
+支持的代理协议格式：
 
 - **HTTP**: `http://user:pass@host:port`
 - **HTTPS**: `https://user:pass@host:port`
@@ -254,191 +241,191 @@ Supported Proxy Protocol Formats:
 </details>
 
 <details>
-<summary>Dynamic Configuration (Hot-Reload)</summary>
+<summary>动态配置（热重载）</summary>
 
-**Basic Settings:**
+**基础设置：**
 
-| Setting                     | Field Name                           | Default                       | Group Override | Description                                                  |
-| --------------------------- | ------------------------------------ | ----------------------------- | -------------- | ------------------------------------------------------------ |
-| Project URL                 | `app_url`                            | `http://localhost:3001`       | ❌             | Project base URL                                             |
-| Global Proxy Keys           | `proxy_keys`                         | Initial value from `AUTH_KEY` | ❌             | Globally effective proxy keys, comma-separated               |
-| Log Retention Days          | `request_log_retention_days`         | 7                             | ❌             | Request log retention days, 0 for no cleanup                 |
-| Log Write Interval          | `request_log_write_interval_minutes` | 1                             | ❌             | Log write to database cycle (minutes)                        |
-| Enable Request Body Logging | `enable_request_body_logging`        | false                         | ✅             | Whether to log complete request body content in request logs |
+| 配置项       | 字段名                               | 默认值                      | 分组可覆盖 | 说明                                                           |
+| ------------ | ------------------------------------ | --------------------------- | ---------- | -------------------------------------------------------------- |
+| 项目地址     | `app_url`                            | `http://localhost:3001`     | ❌         | 项目基础 URL                                                   |
+| 全局代理密钥 | `proxy_keys`                         | 初始值为环境配置的 AUTH_KEY | ❌         | 全局生效的代理认证密钥，多个用逗号分隔                         |
+| 日志保留天数 | `request_log_retention_days`         | 7                           | ❌         | 请求日志保留天数，0 为不清理                                   |
+| 日志写入间隔 | `request_log_write_interval_minutes` | 1                           | ❌         | 日志写入数据库周期（分钟）                                     |
+| 启用日志详情 | `enable_request_body_logging`        | false                       | ✅         | 是否在请求日志中记录完整的请求体内容，启用会增加内存和存储占用 |
 
-**Request Settings:**
+**请求设置：**
 
-| Setting                       | Field Name                | Default | Group Override | Description                                                         |
-| ----------------------------- | ------------------------- | ------- | -------------- | ------------------------------------------------------------------- |
-| Request Timeout               | `request_timeout`         | 600     | ✅             | Forward request complete lifecycle timeout (seconds)                |
-| Connection Timeout            | `connect_timeout`         | 15      | ✅             | Timeout for establishing connection with upstream service (seconds) |
-| Idle Connection Timeout       | `idle_conn_timeout`       | 120     | ✅             | HTTP client idle connection timeout (seconds)                       |
-| Response Header Timeout       | `response_header_timeout` | 600     | ✅             | Timeout for waiting upstream response headers (seconds)             |
-| Max Idle Connections          | `max_idle_conns`          | 100     | ✅             | Connection pool maximum total idle connections                      |
-| Max Idle Connections Per Host | `max_idle_conns_per_host` | 50      | ✅             | Maximum idle connections per upstream host                          |
-| Proxy URL                     | `proxy_url`               | -       | ✅             | HTTP/HTTPS proxy for forwarding requests, uses environment if empty |
+| 配置项               | 字段名                    | 默认值 | 分组可覆盖 | 说明                                               |
+| -------------------- | ------------------------- | ------ | ---------- | -------------------------------------------------- |
+| 请求超时             | `request_timeout`         | 600    | ✅         | 转发请求完整生命周期超时（秒）                     |
+| 连接超时             | `connect_timeout`         | 15     | ✅         | 与上游服务建立连接超时（秒）                       |
+| 空闲连接超时         | `idle_conn_timeout`       | 120    | ✅         | HTTP 客户端空闲连接超时（秒）                      |
+| 响应头超时           | `response_header_timeout` | 600    | ✅         | 等待上游响应头超时（秒）                           |
+| 最大空闲连接数       | `max_idle_conns`          | 100    | ✅         | 连接池最大空闲连接总数                             |
+| 每主机最大空闲连接数 | `max_idle_conns_per_host` | 50     | ✅         | 每个上游主机最大空闲连接数                         |
+| 代理服务器地址       | `proxy_url`               | -      | ✅         | 用于转发请求的 HTTP/HTTPS 代理，为空则使用环境配置 |
 
-**Key Configuration:**
+**密钥配置：**
 
-| Setting                    | Field Name                        | Default | Group Override | Description                                                                |
-| -------------------------- | --------------------------------- | ------- | -------------- | -------------------------------------------------------------------------- |
-| Max Retries                | `max_retries`                     | 3       | ✅             | Maximum retry count using different keys for single request                |
-| Blacklist Threshold        | `blacklist_threshold`             | 3       | ✅             | After how many cumulative failures does the key get blacklisted            |
-| Key Validation Interval    | `key_validation_interval_minutes` | 60      | ✅             | Background scheduled key validation cycle (minutes)                        |
-| Key Validation Concurrency | `key_validation_concurrency`      | 10      | ✅             | Concurrency for background validation of invalid keys                      |
-| Key Validation Timeout     | `key_validation_timeout_seconds`  | 20      | ✅             | API request timeout for validating individual keys in background (seconds) |
+| 配置项         | 字段名                            | 默认值 | 分组可覆盖 | 说明                                             |
+| -------------- | --------------------------------- | ------ | ---------- | ------------------------------------------------ |
+| 最大重试次数   | `max_retries`                     | 3      | ✅         | 单个请求使用不同密钥的最大重试次数               |
+| 黑名单阈值     | `blacklist_threshold`             | 3      | ✅         | 密钥累计失败多少次后进入黑名单                   |
+| 密钥验证间隔   | `key_validation_interval_minutes` | 60     | ✅         | 后台定时验证密钥周期（分钟）                     |
+| 密钥验证并发数 | `key_validation_concurrency`      | 10     | ✅         | 后台定时验证无效 Key 时的并发数                  |
+| 密钥验证超时   | `key_validation_timeout_seconds`  | 20     | ✅         | 后台定时验证单个 Key 时的 API 请求超时时间（秒） |
 
 </details>
 
-## Data Encryption Migration
+## 数据加密迁移
 
-GPT-Load supports encrypted storage of API keys. You can enable, disable, or change the encryption key at any time.
+GPT-Load 支持对 API 密钥进行加密存储。您可以随时启用、禁用或更换加密密钥。
 
 <details>
-<summary>View Data Encryption Migration Details</summary>
+<summary>查看数据加密迁移详细说明</summary>
 
-### Migration Scenarios
+### 迁移场景
 
-- **Enable Encryption**: Encrypt plaintext data for storage - Use `--to <new-key>`
-- **Disable Encryption**: Decrypt encrypted data to plaintext - Use `--from <current-key>`
-- **Change Encryption Key**: Replace the encryption key - Use `--from <current-key> --to <new-key>`
+- **启用加密**：将明文数据加密存储 - 使用 `--to <新密钥>`
+- **禁用加密**：将加密数据解密为明文 - 使用 `--from <当前密钥>`
+- **更换密钥**：更换加密密钥 - 使用 `--from <当前密钥> --to <新密钥>`
 
-### Operation Steps
+### 操作步骤
 
-#### Docker Compose Deployment
+#### Docker Compose 部署
 
 ```bash
-# 1. Update the image (ensure you are using the latest v1 version)
+# 1. 更新镜像（确保使用最新 v1 版本）
 docker compose pull
 
-# 2. Stop the service
+# 2. 停止服务
 docker compose down
 
-# 3. Backup the database (strongly recommended)
-# Before migration, you must manually backup the database or export your keys to avoid key loss due to operations or exceptions.
+# 3. 备份数据库（强烈建议）
+# 执行迁移前，必须手动备份数据库或者导出你的密钥，避免因操作或者异常导致的密钥丢失。
 
-# 4. Execute migration command
-# Enable encryption (your-32-char-secret-key is your key, recommend using 32+ character random string)
+# 4. 执行迁移命令
+# 启用加密（your-32-char-secret-key 为你的密钥，建议使用32位以上的随机字符串）
 docker compose run --rm gpt-load migrate-keys --to "your-32-char-secret-key"
 
-# Disable encryption
+# 禁用加密
 docker compose run --rm gpt-load migrate-keys --from "your-current-key"
 
-# Change encryption key
+# 更换密钥
 docker compose run --rm gpt-load migrate-keys --from "old-key" --to "new-32-char-secret-key"
 
-# 5. Update configuration file
-# Edit .env file, set ENCRYPTION_KEY to match the --to parameter
-# If disabling encryption, remove ENCRYPTION_KEY or set it to empty
+# 5. 更新配置文件
+# 编辑 .env 文件，设置 ENCRYPTION_KEY 与 --to 参数一致
+# 如果禁用加密，则删除 ENCRYPTION_KEY 或设置为空
 vim .env
-# Add or modify: ENCRYPTION_KEY=your-32-char-secret-key
+# 添加或修改: ENCRYPTION_KEY=your-32-char-secret-key
 
-# 6. Restart the service
+# 6. 重启服务
 docker compose up -d
 ```
 
-#### Source Build Deployment
+#### 源码构建部署
 
 ```bash
-# 1. Stop the service
-# Stop the running service process (Ctrl+C or kill process)
+# 1. 停止服务
+# 停止正在运行的服务进程（Ctrl+C 或 kill 进程）
 
-# 2. Backup the database (strongly recommended)
-# Before migration, you must manually backup the database or export your keys to avoid key loss due to operations or exceptions.
+# 2. 备份数据库（强烈建议）
+# 执行迁移前，必须手动备份数据库或者导出你的密钥，避免因操作或者异常导致的密钥丢失。
 
-# 3. Execute migration command
-# Enable encryption
+# 3. 执行迁移命令
+# 启用加密
 make migrate-keys ARGS="--to your-32-char-secret-key"
 
-# Disable encryption
+# 禁用加密
 make migrate-keys ARGS="--from your-current-key"
 
-# Change encryption key
+# 更换密钥
 make migrate-keys ARGS="--from old-key --to new-32-char-secret-key"
 
-# 4. Update configuration file
-# Edit .env file, set ENCRYPTION_KEY to match the --to parameter
+# 4. 更新配置文件
+# 编辑 .env 文件，设置 ENCRYPTION_KEY 与 --to 参数一致
 echo "ENCRYPTION_KEY=your-32-char-secret-key" >> .env
 
-# 5. Restart the service
+# 5. 重启服务
 make run
 ```
 
-### Important Notes
+### 注意事项
 
-⚠️ **Important Reminders**:
+⚠️ **重要提醒**：
 
-- **Once ENCRYPTION_KEY is lost, encrypted data CANNOT be recovered!** Please securely backup this key. Consider using a password manager or secure key management system
-- **Service must be stopped** before migration to avoid data inconsistency
-- Strongly recommended to **backup the database** in case migration fails and recovery is needed
-- Keys should use **32 characters or longer random strings** for security
-- Ensure `ENCRYPTION_KEY` in `.env` matches the `--to` parameter after migration
-- If disabling encryption, remove or clear the `ENCRYPTION_KEY` configuration
+- **ENCRYPTION_KEY 一旦丢失将无法恢复已加密的数据！** 请务必安全备份此密钥，建议使用密码管理器或安全的密钥管理系统保存
+- 迁移前**必须停止服务**，避免数据不一致
+- 强烈建议**备份数据库**，以防迁移失败需要恢复
+- 密钥建议使用 **32 位或更长的随机字符串**，确保安全性
+- 迁移后确保 `.env` 中的 `ENCRYPTION_KEY` 与 `--to` 参数一致
+- 如果禁用加密，需要删除或清空 `ENCRYPTION_KEY` 配置
 
-### Key Generation Examples
+### 密钥生成示例
 
 ```bash
-# Generate secure random key (32 characters)
+# 生成安全的随机密钥（32字符）
 openssl rand -base64 32 | tr -d "=+/" | cut -c1-32
 ```
 
 </details>
 
-## Web Management Interface
+## Web 管理界面
 
-Access the management console at: <http://localhost:3001> (default address)
+访问管理控制台：<http://localhost:3001>（默认地址）
 
-### Interface Overview
+### 界面展示
 
-<img src="screenshot/dashboard.png" alt="Dashboard" width="600"/>
-
-<br/>
-
-<img src="screenshot/keys.png" alt="Key Management" width="600"/>
+<img src="screenshot/dashboard.png" alt="仪表盘" width="600" />
 
 <br/>
 
-The web management interface provides the following features:
+<img src="screenshot/keys.png" alt="密钥管理" width="600" />
 
-- **Dashboard**: Real-time statistics and system status overview
-- **Key Management**: Create and configure AI service provider groups, add, delete, and monitor API keys
-- **Request Logs**: Detailed request history and debugging information
-- **System Settings**: Global configuration management and hot-reload
+<br/>
 
-## API Usage Guide
+Web 管理界面提供以下功能：
+
+- **仪表盘**: 实时统计信息和系统状态概览
+- **密钥管理**: 创建和配置 AI 服务商分组，添加、删除和监控 API 密钥
+- **请求日志**: 详细的请求历史记录和调试信息
+- **系统设置**: 全局配置管理和热重载
+
+## API 使用说明
 
 <details>
-<summary>Proxy Interface Invocation</summary>
+<summary>代理接口调用方式</summary>
 
-GPT-Load routes requests to different AI services through group names. Usage is as follows:
+GPT-Load 通过分组名称路由请求到不同的 AI 服务。使用方式如下：
 
-### 1. Proxy Endpoint Format
+### 1. 代理端点格式
 
 ```text
-http://localhost:3001/proxy/{group_name}/{original_api_path}
+http://localhost:3001/proxy/{group_name}/{原始API路径}
 ```
 
-- `{group_name}`: Group name created in the management interface
-- `{original_api_path}`: Maintain complete consistency with original AI service paths
+- `{group_name}`: 在管理界面创建的分组名称
+- `{原始API路径}`: 保持与原始 AI 服务完全一致的路径
 
-### 2. Authentication Methods
+### 2. 认证方式
 
-Configure **Proxy Keys** in the web management interface, which supports system-level and group-level proxy keys.
+在 Web 管理界面中配置**代理密钥** (`Proxy Keys`)，可设置系统级别和分组级别的代理密钥。
 
-- **Authentication Method**: Consistent with the native API, but replace the original key with the configured proxy key.
-- **Key Scope**: **Global Proxy Keys** configured in system settings can be used in all groups. **Group Proxy Keys** configured in a group are only valid for the current group.
-- **Format**: Multiple keys are separated by commas.
+- **认证方式**: 与原生 API 一致，但需将原始密钥替换为配置的代理密钥。
+- **密钥作用域**: 在系统设置配置的 **全局代理密钥** 可以在所有分组使用，在分组配置的 **分组代理密钥** 仅在当前分组有效。
+- **格式**: 多个密钥使用半角英文逗号分隔。
 
-### 3. OpenAI Interface Example
+### 3. OpenAI 接口调用示例
 
-GPT-Load currently supports two OpenAI-compatible group types:
+GPT-Load 当前支持两种 OpenAI 兼容分组类型：
 
-- `openai` (OpenAI Chat Completions format)
-- `openai-response` (OpenAI Responses format)
+- `openai`（OpenAI Chat Completions 格式）
+- `openai-response`（OpenAI Responses 格式）
 
-Assuming a group named `openai` was created:
+假设创建了名为 `openai` 的分组：
 
-**Original invocation:**
+**原始调用方式：**
 
 ```bash
 curl -X POST https://api.openai.com/v1/chat/completions \
@@ -447,7 +434,7 @@ curl -X POST https://api.openai.com/v1/chat/completions \
   -d '{"model": "gpt-4.1-mini", "messages": [{"role": "user", "content": "Hello"}]}'
 ```
 
-**Proxy invocation:**
+**代理调用方式：**
 
 ```bash
 curl -X POST http://localhost:3001/proxy/openai/v1/chat/completions \
@@ -456,12 +443,12 @@ curl -X POST http://localhost:3001/proxy/openai/v1/chat/completions \
   -d '{"model": "gpt-4.1-mini", "messages": [{"role": "user", "content": "Hello"}]}'
 ```
 
-**Changes required:**
+**变更说明：**
 
-- Replace `https://api.openai.com` with `http://localhost:3001/proxy/openai`
-- Replace original API Key with the **Proxy Key**
+- 将 `https://api.openai.com` 替换为 `http://localhost:3001/proxy/openai`
+- 将原始 API Key 替换为**代理密钥**
 
-**OpenAI Responses format example (`openai-response` group):**
+**OpenAI Responses 格式示例（`openai-response` 分组）：**
 
 ```bash
 curl -X POST http://localhost:3001/proxy/openai-response/v1/responses \
@@ -470,11 +457,11 @@ curl -X POST http://localhost:3001/proxy/openai-response/v1/responses \
   -d '{"model": "gpt-4.1-mini", "input": "Hello"}'
 ```
 
-### 4. Gemini Interface Example
+### 4. Gemini 接口调用示例
 
-Assuming a group named `gemini` was created:
+假设创建了名为 `gemini` 的分组：
 
-**Original invocation:**
+**原始调用方式：**
 
 ```bash
 curl -X POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=your-gemini-key \
@@ -482,7 +469,7 @@ curl -X POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-
   -d '{"contents": [{"parts": [{"text": "Hello"}]}]}'
 ```
 
-**Proxy invocation:**
+**代理调用方式：**
 
 ```bash
 curl -X POST http://localhost:3001/proxy/gemini/v1beta/models/gemini-2.5-pro:generateContent?key=your-proxy-key \
@@ -490,16 +477,16 @@ curl -X POST http://localhost:3001/proxy/gemini/v1beta/models/gemini-2.5-pro:gen
   -d '{"contents": [{"parts": [{"text": "Hello"}]}]}'
 ```
 
-**Changes required:**
+**变更说明：**
 
-- Replace `https://generativelanguage.googleapis.com` with `http://localhost:3001/proxy/gemini`
-- Replace `key=your-gemini-key` in URL parameter with the **Proxy Key**
+- 将 `https://generativelanguage.googleapis.com` 替换为 `http://localhost:3001/proxy/gemini`
+- 将 URL 参数中的 `key=your-gemini-key` 替换为**代理密钥**
 
-### 5. Anthropic Interface Example
+### 5. Anthropic 接口调用示例
 
-Assuming a group named `anthropic` was created:
+假设创建了名为 `anthropic` 的分组：
 
-**Original invocation:**
+**原始调用方式：**
 
 ```bash
 curl -X POST https://api.anthropic.com/v1/messages \
@@ -509,7 +496,7 @@ curl -X POST https://api.anthropic.com/v1/messages \
   -d '{"model": "claude-sonnet-4-20250514", "messages": [{"role": "user", "content": "Hello"}]}'
 ```
 
-**Proxy invocation:**
+**代理调用方式：**
 
 ```bash
 curl -X POST http://localhost:3001/proxy/anthropic/v1/messages \
@@ -519,49 +506,49 @@ curl -X POST http://localhost:3001/proxy/anthropic/v1/messages \
   -d '{"model": "claude-sonnet-4-20250514", "messages": [{"role": "user", "content": "Hello"}]}'
 ```
 
-**Changes required:**
+**变更说明：**
 
-- Replace `https://api.anthropic.com` with `http://localhost:3001/proxy/anthropic`
-- Replace the original API Key in `x-api-key` header with the **Proxy Key**
+- 将 `https://api.anthropic.com` 替换为 `http://localhost:3001/proxy/anthropic`
+- 将 `x-api-key` 头部中的原始 API Key 替换为**代理密钥**
 
-### 6. Supported Interfaces
+### 6. 支持的接口
 
-**OpenAI Chat Completions Format (`openai`):**
+**OpenAI Chat Completions 格式（`openai`）：**
 
-- `/v1/chat/completions` - Chat conversations
-- `/v1/completions` - Text completion
-- `/v1/embeddings` - Text embeddings
-- `/v1/models` - Model list
-- And all other OpenAI-compatible interfaces
+- `/v1/chat/completions` - 聊天对话
+- `/v1/completions` - 文本补全
+- `/v1/embeddings` - 文本嵌入
+- `/v1/models` - 模型列表
+- 以及其他所有 OpenAI 兼容接口
 
-**OpenAI Responses Format (`openai-response`):**
+**OpenAI Responses 格式（`openai-response`）：**
 
-- `/v1/responses` - Unified response generation
-- `/v1/models` - Model list
-- And all other OpenAI Responses-compatible interfaces
+- `/v1/responses` - 统一响应生成
+- `/v1/models` - 模型列表
+- 以及其他所有 OpenAI Responses 兼容接口
 
-**Gemini Format:**
+**Gemini 格式：**
 
-- `/v1beta/models/*/generateContent` - Content generation
-- `/v1beta/models` - Model list
-- And all other Gemini native interfaces
+- `/v1beta/models/*/generateContent` - 内容生成
+- `/v1beta/models` - 模型列表
+- 以及其他所有 Gemini 原生接口
 
-**Anthropic Format:**
+**Anthropic 格式：**
 
-- `/v1/messages` - Message conversations
-- `/v1/models` - Model list (if available)
-- And all other Anthropic native interfaces
+- `/v1/messages` - 消息对话
+- `/v1/models` - 模型列表（如果可用）
+- 以及其他所有 Anthropic 原生接口
 
-### 7. Client SDK Configuration
+### 7. 客户端 SDK 配置
 
-**OpenAI Python SDK:**
+**OpenAI Python SDK：**
 
 ```python
 from openai import OpenAI
 
 client = OpenAI(
-    api_key="your-proxy-key",  # Use the proxy key
-    base_url="http://localhost:3001/proxy/openai"  # Use proxy endpoint
+    api_key="your-proxy-key",  # 使用密钥
+    base_url="http://localhost:3001/proxy/openai"  # 使用代理端点
 )
 
 response = client.chat.completions.create(
@@ -570,14 +557,14 @@ response = client.chat.completions.create(
 )
 ```
 
-**Google Gemini SDK (Python):**
+**Google Gemini SDK (Python)：**
 
 ```python
 import google.generativeai as genai
 
-# Configure API key and base URL
+# 配置 API 密钥和基础 URL
 genai.configure(
-    api_key="your-proxy-key",  # Use the proxy key
+    api_key="your-proxy-key",  # 使用代理密钥
     client_options={"api_endpoint": "http://localhost:3001/proxy/gemini"}
 )
 
@@ -585,14 +572,14 @@ model = genai.GenerativeModel('gemini-2.5-pro')
 response = model.generate_content("Hello")
 ```
 
-**Anthropic SDK (Python):**
+**Anthropic SDK (Python)：**
 
 ```python
 from anthropic import Anthropic
 
 client = Anthropic(
-    api_key="your-proxy-key",  # Use the proxy key
-    base_url="http://localhost:3001/proxy/anthropic"  # Use proxy endpoint
+    api_key="your-proxy-key",  # 使用代理密钥
+    base_url="http://localhost:3001/proxy/anthropic"  # 使用代理端点
 )
 
 response = client.messages.create(
@@ -601,24 +588,16 @@ response = client.messages.create(
 )
 ```
 
-> **Important Note**: As a transparent proxy service, GPT-Load completely preserves the native API formats and authentication methods of various AI services. You only need to replace the endpoint address and use the **Proxy Key** configured in the management interface for seamless migration.
+> **重要提示**：作为透明代理服务，GPT-Load 完全保留各 AI 服务的原生 API 格式和认证方式，仅需要替换端点地址并使用在管理端配置的**代理密钥**即可无缝迁移。
 
 </details>
 
-## Related Projects
+## 相关项目
 
-- **[New API](https://github.com/QuantumNous/new-api)** - Excellent AI model aggregation management and distribution system
+- **[New API](https://github.com/QuantumNous/new-api)** - 优秀的AI模型聚合管理分发系统
 
-## Contributing
 
-Thanks to all the developers who have contributed to GPT-Load!
+## 许可证
 
-[![Contributors](https://contrib.rocks/image?repo=tbphp/gpt-load)](https://github.com/tbphp/gpt-load/graphs/contributors)
+MIT 许可证 - 详情请参阅 [LICENSE](LICENSE) 文件。
 
-## License
-
-MIT License - see [LICENSE](LICENSE) file for details.
-
-## Star History
-
-[![Stargazers over time](https://starchart.cc/tbphp/gpt-load.svg?variant=adaptive)](https://starchart.cc/tbphp/gpt-load)

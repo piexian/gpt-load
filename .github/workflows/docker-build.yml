@@ -37,12 +37,9 @@ jobs:
         uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
         with:
           images: ghcr.io/${{ github.repository }}
-          flavor: |
-            latest=false
           tags: |
             type=ref,event=tag
             type=raw,value=beta,enable=${{ contains(github.ref, '-beta') }}
-            type=raw,value=1,enable=${{ !contains(github.ref, '-') }}
 
       - name: Build and push Docker image
         id: build

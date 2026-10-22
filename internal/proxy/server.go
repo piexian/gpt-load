@@ -248,8 +248,10 @@ func (ps *ProxyServer) executeRequestWithRetry(
 		defer resp.Body.Close()
 	}
 
-	// Unified error handling for retries. Exclude 404 from being a retryable error.
-	if err != nil || (resp != nil && resp.StatusCode >= 400 && resp.StatusCode != http.StatusNotFound) {
+	// Unified error handling for retries.
+	// Retry policy is fully defined by group.FailoverStatusCodeMatcher (derived from EffectiveConfig).
+	shouldRetryByStatus := resp != nil && shouldFailoverOnStatusCode(resp.StatusCode, group)
+	if err != nil || shouldRetryByStatus {
 		// Rollback rate limit counters on failure
 		ps.rollbackRateLimit(group, apiKey, cfg)
 
@@ -269,7 +271,7 @@ func (ps *ProxyServer) executeRequestWithRetry(
 			parsedError = errorMessage
 			logrus.Debugf("Request failed (attempt %d/%d) for key %s: %v", retryCount+1, cfg.MaxRetries, utils.MaskAPIKey(apiKey.KeyValue), err)
 		} else {
-			// HTTP-level error (status >= 400)
+			// Retryable upstream response (HTTP status code matched failover policy)
 			statusCode = resp.StatusCode
 			errorBody, readErr := io.ReadAll(resp.Body)
 			if readErr != nil {
@@ -282,6 +284,11 @@ func (ps *ProxyServer) executeRequestWithRetry(
 			parsedError = app_errors.ParseUpstreamError(errorBody)
 			logrus.Debugf("Request failed with status %d (attempt %d/%d) for key %s. Parsed Error: %s", statusCode, retryCount+1, cfg.MaxRetries, utils.MaskAPIKey(apiKey.KeyValue), parsedError)
 		}
+
+		// 上游 key 可能出现在错误文本中（如 Gemini 通道将 key 放入 URL query，
+		// 传输层错误会把完整 URL 带入 err.Error()），返回客户端和落库前先脱敏
+		errorMessage = utils.RedactSecret(errorMessage, apiKey.KeyValue)
+		parsedError = utils.RedactSecret(parsedError, apiKey.KeyValue)
 
 		// 使用解析后的错误信息更新密钥状态
 		ps.keyProvider.UpdateStatus(apiKey, group, false, parsedError)
@@ -332,6 +339,13 @@ func (ps *ProxyServer) executeRequestWithRetry(
 	}
 
 	ps.logRequest(c, originalGroup, group, apiKey, startTime, resp.StatusCode, nil, isStream, upstreamURL, channelHandler, bodyBytes, models.RequestTypeFinal)
+}
+
+func shouldFailoverOnStatusCode(statusCode int, group *models.Group) bool {
+	if group == nil {
+		return false
+	}
+	return group.FailoverStatusCodeMatcher.Match(statusCode)
 }
 
 // rollbackRateLimit decrements the rate limit counters that were incremented before the request.

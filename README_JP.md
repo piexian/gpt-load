@@ -2,16 +2,39 @@
 
 [English](README.md) | [中文](README_CN.md) | 日本語
 
-[![Release](https://img.shields.io/github/v/release/tbphp/gpt-load)](https://github.com/tbphp/gpt-load/releases)
-![Go Version](https://img.shields.io/badge/Go-1.24+-blue.svg)
+[![Release](https://img.shields.io/github/v/tag/tbphp/gpt-load?filter=v1.*)](https://github.com/tbphp/gpt-load/releases)
+![Go Version](https://img.shields.io/badge/Go-1.26.10+-blue.svg)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 複数のAIサービスを統合する必要がある企業や開発者向けに特別に設計された、高性能でエンタープライズグレードのAI APIトランスペアレントプロキシサービス。Goで構築され、インテリジェントなキー管理、ロードバランシング、包括的な監視機能を備え、高並行性の本番環境向けに設計されています。
 
-詳細なドキュメントについては、[公式ドキュメント](https://www.gpt-load.com/docs?lang=ja)をご覧ください。
+詳細については、[公式サイト](https://www.gpt-load.com/v1)をご覧ください。
 
 <a href="https://trendshift.io/repositories/14880" target="_blank"><img src="https://trendshift.io/api/badge/repositories/14880" alt="tbphp%2Fgpt-load | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 <a href="https://hellogithub.com/repository/tbphp/gpt-load" target="_blank"><img src="https://api.hellogithub.com/v1/widgets/recommend.svg?rid=554dc4c46eb14092b9b0c56f1eb9021c&claim_uid=Qlh8vzrWJ0HCneG" alt="Featured｜HelloGitHub" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+
+## スポンサー
+
+<table>
+<tbody>
+<tr>
+<td width="180"><a href="https://go.apimart.ai/gh-gpt-load"><img src="./screenshot/apimart.png" alt="APIMart" width="150"></a></td>
+<td>APIMartによる本プロジェクトへのスポンサー支援に感謝します！APIMartはAI画像・動画生成に特化した低価格APIプラットフォームで、GPT-Image-2は1枚$0.006から、1ドルで160枚以上の画像を生成できます。画像と動画の両方に対応する1つの非同期APIで、タスクを送信してIDを取得し、ポーリングまたはコールバックで結果を取得できます。数万枚規模の一括処理でもタイムアウトせず、モデルを切り替えてもコードを変更する必要はありません。従量課金制で月額料金は不要です。<a href="https://go.apimart.ai/gh-gpt-load">こちらの登録リンク</a>から登録して、すぐにご利用いただけます。</td>
+</tr>
+<tr>
+<td width="180" align="center"><a href="https://openai.com/"><img src="./screenshot/sponsor-openai.svg" alt="OpenAI" width="56"></a></td>
+<td>本プロジェクトへのスポンサー支援に感謝します（OpenAI）。</td>
+</tr>
+<tr>
+<td width="180"><a href="https://linux.do"><img src="./screenshot/l.png" alt="LINUX DO" width="150"></a></td>
+<td>LINUX DOコミュニティからのサポートに心より感謝いたします！</td>
+</tr>
+<tr>
+<td width="180"><a href="https://www.digitalocean.com/?refcode=3d52cff21342&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg" alt="DigitalOcean Referral Badge" width="150"></a></td>
+<td>このプロジェクトはDigitalOceanの支援を受けています。</td>
+</tr>
+</tbody>
+</table>
 
 ## 特徴
 
@@ -39,7 +62,7 @@ GPT-Loadは、さまざまなAIサービスプロバイダーのネイティブA
 
 ### システム要件
 
-- Go 1.24+（ソースビルド用）
+- Go 1.26.10+（ソースビルド用）
 - Docker（コンテナ化デプロイメント用）
 - MySQL、PostgreSQL、またはSQLite（データベースストレージ用）
 - Redis（キャッシュと分散調整用、オプション）
@@ -51,10 +74,12 @@ docker run -d --name gpt-load \
     -p 3001:3001 \
     -e AUTH_KEY=your-secure-key-here \
     -v "$(pwd)/data":/app/data \
-    ghcr.io/tbphp/gpt-load:latest
+    ghcr.io/tbphp/gpt-load:1
 ```
 
 > `your-secure-key-here`を強力なパスワードに変更してください（デフォルト値は絶対に使用しないでください）。その後、管理インターフェースにログインできます：<http://localhost:3001>
+
+> v1 メンテナンスラインの安定版 Docker タグは `1` です。v1 リリースでは `latest` を更新しません。移行期間の終了後、`latest` は v2 を指す可能性があります。既存の v1 環境ではイメージを `:1` に固定してください。
 
 ### 方法2: Docker Composeを使用（推奨）
 
@@ -65,8 +90,8 @@ docker run -d --name gpt-load \
 mkdir -p gpt-load && cd gpt-load
 
 # 設定ファイルをダウンロード
-wget https://raw.githubusercontent.com/tbphp/gpt-load/refs/heads/main/docker-compose.yml
-wget -O .env https://raw.githubusercontent.com/tbphp/gpt-load/refs/heads/main/.env.example
+wget https://raw.githubusercontent.com/tbphp/gpt-load/refs/heads/v1/docker-compose.yml
+wget -O .env https://raw.githubusercontent.com/tbphp/gpt-load/refs/heads/v1/.env.example
 
 # .envファイルを編集し、AUTH_KEYを強力なパスワードに変更します。デフォルトやsk-123456のような単純なキーは絶対に使用しないでください。
 
@@ -92,7 +117,7 @@ docker compose logs -f
 # サービスを再起動
 docker compose down && docker compose up -d
 
-# 最新バージョンに更新
+# 最新の v1 バージョンに更新
 docker compose pull && docker compose down && docker compose up -d
 ```
 
@@ -166,60 +191,60 @@ GPT-Loadは二層設定アーキテクチャを採用しています：
 
 **サーバー設定：**
 
-| 設定                     | 環境変数                           | デフォルト      | 説明                                       |
-| ----------------------- | ---------------------------------- | -------------- | ----------------------------------------- |
-| サービスポート           | `PORT`                             | 3001           | HTTPサーバーリスニングポート                |
-| サービスアドレス         | `HOST`                             | 0.0.0.0        | HTTPサーバーバインディングアドレス           |
-| 読み取りタイムアウト     | `SERVER_READ_TIMEOUT`              | 60             | HTTPサーバー読み取りタイムアウト（秒）       |
-| 書き込みタイムアウト     | `SERVER_WRITE_TIMEOUT`             | 600            | HTTPサーバー書き込みタイムアウト（秒）       |
-| アイドルタイムアウト     | `SERVER_IDLE_TIMEOUT`              | 120            | HTTP接続アイドルタイムアウト（秒）          |
-| グレースフルシャットダウンタイムアウト | `SERVER_GRACEFUL_SHUTDOWN_TIMEOUT` | 10   | サービスグレースフルシャットダウン待機時間（秒）|
-| フォロワーモード         | `IS_SLAVE`                         | false          | クラスターデプロイメント用フォロワーノード識別子|
-| タイムゾーン            | `TZ`                               | `Asia/Shanghai` | タイムゾーンを指定                          |
+| 設定                                   | 環境変数                           | デフォルト      | 説明                                             |
+| -------------------------------------- | ---------------------------------- | --------------- | ------------------------------------------------ |
+| サービスポート                         | `PORT`                             | 3001            | HTTPサーバーリスニングポート                     |
+| サービスアドレス                       | `HOST`                             | 0.0.0.0         | HTTPサーバーバインディングアドレス               |
+| 読み取りタイムアウト                   | `SERVER_READ_TIMEOUT`              | 60              | HTTPサーバー読み取りタイムアウト（秒）           |
+| 書き込みタイムアウト                   | `SERVER_WRITE_TIMEOUT`             | 600             | HTTPサーバー書き込みタイムアウト（秒）           |
+| アイドルタイムアウト                   | `SERVER_IDLE_TIMEOUT`              | 120             | HTTP接続アイドルタイムアウト（秒）               |
+| グレースフルシャットダウンタイムアウト | `SERVER_GRACEFUL_SHUTDOWN_TIMEOUT` | 10              | サービスグレースフルシャットダウン待機時間（秒） |
+| フォロワーモード                       | `IS_SLAVE`                         | false           | クラスターデプロイメント用フォロワーノード識別子 |
+| タイムゾーン                           | `TZ`                               | `Asia/Shanghai` | タイムゾーンを指定                               |
 
 **セキュリティ設定：**
 
-| 設定        | 環境変数            | デフォルト | 説明                                                                              |
-| ---------- | ------------------- | --------- | -------------------------------------------------------------------------------- |
-| 管理キー    | `AUTH_KEY`          | -         | **管理端末**のアクセス認証キー、強力なパスワードに変更してください                    |
-| 暗号化キー  | `ENCRYPTION_KEY`    | -         | APIキーを保存時に暗号化。任意の文字列をサポート、空の場合は暗号化を無効化。[データ暗号化移行](#データ暗号化移行)を参照 |
+| 設定       | 環境変数         | デフォルト | 説明                                                                                                                   |
+| ---------- | ---------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------- |
+| 管理キー   | `AUTH_KEY`       | -          | **管理端末**のアクセス認証キー、強力なパスワードに変更してください                                                     |
+| 暗号化キー | `ENCRYPTION_KEY` | -          | APIキーを保存時に暗号化。任意の文字列をサポート、空の場合は暗号化を無効化。[データ暗号化移行](#データ暗号化移行)を参照 |
 
 **データベース設定：**
 
-| 設定               | 環境変数         | デフォルト            | 説明                                    |
-| ----------------- | ---------------- | -------------------- | --------------------------------------- |
-| データベース接続   | `DATABASE_DSN`   | `./data/gpt-load.db` | データベース接続文字列（DSN）またはファイルパス |
-| Redis接続         | `REDIS_DSN`      | -                    | Redis接続文字列、空の場合はメモリストレージを使用 |
+| 設定             | 環境変数       | デフォルト           | 説明                                              |
+| ---------------- | -------------- | -------------------- | ------------------------------------------------- |
+| データベース接続 | `DATABASE_DSN` | `./data/gpt-load.db` | データベース接続文字列（DSN）またはファイルパス   |
+| Redis接続        | `REDIS_DSN`    | -                    | Redis接続文字列、空の場合はメモリストレージを使用 |
 
 **パフォーマンス＆CORS設定：**
 
-| 設定                   | 環境変数                  | デフォルト                     | 説明                                    |
-| --------------------- | ------------------------- | ----------------------------- | --------------------------------------- |
-| 最大同時リクエスト数    | `MAX_CONCURRENT_REQUESTS` | 100                          | システムが許可する最大同時リクエスト数      |
-| CORS有効化            | `ENABLE_CORS`             | false                         | クロスオリジンリソース共有を有効にするか    |
-| 許可されたオリジン     | `ALLOWED_ORIGINS`         | -                            | 許可されたオリジン、カンマ区切り           |
-| 許可されたメソッド     | `ALLOWED_METHODS`         | `GET,POST,PUT,DELETE,OPTIONS` | 許可されたHTTPメソッド                   |
-| 許可されたヘッダー     | `ALLOWED_HEADERS`         | `*`                          | 許可されたリクエストヘッダー、カンマ区切り   |
-| 認証情報の許可        | `ALLOW_CREDENTIALS`       | false                        | 認証情報の送信を許可するか                |
+| 設定                 | 環境変数                  | デフォルト                    | 説明                                       |
+| -------------------- | ------------------------- | ----------------------------- | ------------------------------------------ |
+| 最大同時リクエスト数 | `MAX_CONCURRENT_REQUESTS` | 100                           | システムが許可する最大同時リクエスト数     |
+| CORS有効化           | `ENABLE_CORS`             | false                         | クロスオリジンリソース共有を有効にするか   |
+| 許可されたオリジン   | `ALLOWED_ORIGINS`         | -                             | 許可されたオリジン、カンマ区切り           |
+| 許可されたメソッド   | `ALLOWED_METHODS`         | `GET,POST,PUT,DELETE,OPTIONS` | 許可されたHTTPメソッド                     |
+| 許可されたヘッダー   | `ALLOWED_HEADERS`         | `*`                           | 許可されたリクエストヘッダー、カンマ区切り |
+| 認証情報の許可       | `ALLOW_CREDENTIALS`       | false                         | 認証情報の送信を許可するか                 |
 
 **ログ設定：**
 
-| 設定                | 環境変数          | デフォルト             | 説明                              |
-| ------------------ | ----------------- | --------------------- | --------------------------------- |
-| ログレベル          | `LOG_LEVEL`       | `info`                | ログレベル：debug, info, warn, error |
-| ログフォーマット    | `LOG_FORMAT`      | `text`                | ログフォーマット：text, json        |
-| ファイルログ有効化   | `LOG_ENABLE_FILE` | false                 | ファイルログ出力を有効にするか        |
-| ログファイルパス    | `LOG_FILE_PATH`   | `./data/logs/app.log` | ログファイル保存パス                 |
+| 設定               | 環境変数          | デフォルト            | 説明                                 |
+| ------------------ | ----------------- | --------------------- | ------------------------------------ |
+| ログレベル         | `LOG_LEVEL`       | `info`                | ログレベル：debug, info, warn, error |
+| ログフォーマット   | `LOG_FORMAT`      | `text`                | ログフォーマット：text, json         |
+| ファイルログ有効化 | `LOG_ENABLE_FILE` | false                 | ファイルログ出力を有効にするか       |
+| ログファイルパス   | `LOG_FILE_PATH`   | `./data/logs/app.log` | ログファイル保存パス                 |
 
 **プロキシ設定：**
 
 GPT-Loadは、アップストリームAIプロバイダーへのリクエストを行うために環境変数からプロキシ設定を自動的に読み取ります。
 
-| 設定        | 環境変数       | デフォルト | 説明                                         |
-| ---------- | -------------- | --------- | -------------------------------------------- |
-| HTTPプロキシ | `HTTP_PROXY`  | -         | HTTPリクエスト用のプロキシサーバーアドレス       |
-| HTTPSプロキシ| `HTTPS_PROXY` | -         | HTTPSリクエスト用のプロキシサーバーアドレス      |
-| プロキシなし | `NO_PROXY`    | -         | プロキシをバイパスするホストまたはドメインのカンマ区切りリスト |
+| 設定          | 環境変数      | デフォルト | 説明                                                           |
+| ------------- | ------------- | ---------- | -------------------------------------------------------------- |
+| HTTPプロキシ  | `HTTP_PROXY`  | -          | HTTPリクエスト用のプロキシサーバーアドレス                     |
+| HTTPSプロキシ | `HTTPS_PROXY` | -          | HTTPSリクエスト用のプロキシサーバーアドレス                    |
+| プロキシなし  | `NO_PROXY`    | -          | プロキシをバイパスするホストまたはドメインのカンマ区切りリスト |
 
 サポートされているプロキシプロトコルフォーマット：
 
@@ -233,35 +258,35 @@ GPT-Loadは、アップストリームAIプロバイダーへのリクエスト�
 
 **基本設定：**
 
-| 設定                | フィールド名                        | デフォルト              | グループ上書き | 説明                                    |
-| ------------------ | ---------------------------------- | ---------------------- | ------------ | --------------------------------------- |
-| プロジェクトURL     | `app_url`                          | `http://localhost:3001` | ❌           | プロジェクトベースURL                     |
-| グローバルプロキシキー | `proxy_keys`                      | `AUTH_KEY`の初期値       | ❌           | グローバルに有効なプロキシキー、カンマ区切り |
-| ログ保持日数        | `request_log_retention_days`       | 7                      | ❌           | リクエストログ保持日数、0でクリーンアップなし |
-| ログ書き込み間隔    | `request_log_write_interval_minutes` | 1                    | ❌           | データベースへのログ書き込みサイクル（分）   |
-| リクエストボディログ有効化 | `enable_request_body_logging` | false                 | ✅           | リクエストログに完全なリクエストボディコンテンツを記録するか |
+| 設定                       | フィールド名                         | デフォルト              | グループ上書き | 説明                                                         |
+| -------------------------- | ------------------------------------ | ----------------------- | -------------- | ------------------------------------------------------------ |
+| プロジェクトURL            | `app_url`                            | `http://localhost:3001` | ❌             | プロジェクトベースURL                                        |
+| グローバルプロキシキー     | `proxy_keys`                         | `AUTH_KEY`の初期値      | ❌             | グローバルに有効なプロキシキー、カンマ区切り                 |
+| ログ保持日数               | `request_log_retention_days`         | 7                       | ❌             | リクエストログ保持日数、0でクリーンアップなし                |
+| ログ書き込み間隔           | `request_log_write_interval_minutes` | 1                       | ❌             | データベースへのログ書き込みサイクル（分）                   |
+| リクエストボディログ有効化 | `enable_request_body_logging`        | false                   | ✅             | リクエストログに完全なリクエストボディコンテンツを記録するか |
 
 **リクエスト設定：**
 
-| 設定                        | フィールド名               | デフォルト | グループ上書き | 説明                                                      |
-| -------------------------- | ------------------------- | --------- | ------------ | --------------------------------------------------------- |
-| リクエストタイムアウト       | `request_timeout`         | 600       | ✅           | 転送リクエストの完全なライフサイクルタイムアウト（秒）          |
-| 接続タイムアウト            | `connect_timeout`         | 15        | ✅           | アップストリームサービスとの接続確立のタイムアウト（秒）        |
-| アイドル接続タイムアウト     | `idle_conn_timeout`       | 120       | ✅           | HTTPクライアントアイドル接続タイムアウト（秒）                |
-| レスポンスヘッダータイムアウト | `response_header_timeout` | 600      | ✅           | アップストリームレスポンスヘッダーの待機タイムアウト（秒）      |
-| 最大アイドル接続数          | `max_idle_conns`          | 100       | ✅           | 接続プールの最大総アイドル接続数                             |
-| ホストごとの最大アイドル接続数 | `max_idle_conns_per_host` | 50       | ✅           | アップストリームホストごとの最大アイドル接続数                |
-| プロキシURL                | `proxy_url`               | -         | ✅           | 転送リクエスト用のHTTP/HTTPSプロキシ、空の場合は環境を使用    |
+| 設定                           | フィールド名              | デフォルト | グループ上書き | 説明                                                       |
+| ------------------------------ | ------------------------- | ---------- | -------------- | ---------------------------------------------------------- |
+| リクエストタイムアウト         | `request_timeout`         | 600        | ✅             | 転送リクエストの完全なライフサイクルタイムアウト（秒）     |
+| 接続タイムアウト               | `connect_timeout`         | 15         | ✅             | アップストリームサービスとの接続確立のタイムアウト（秒）   |
+| アイドル接続タイムアウト       | `idle_conn_timeout`       | 120        | ✅             | HTTPクライアントアイドル接続タイムアウト（秒）             |
+| レスポンスヘッダータイムアウト | `response_header_timeout` | 600        | ✅             | アップストリームレスポンスヘッダーの待機タイムアウト（秒） |
+| 最大アイドル接続数             | `max_idle_conns`          | 100        | ✅             | 接続プールの最大総アイドル接続数                           |
+| ホストごとの最大アイドル接続数 | `max_idle_conns_per_host` | 50         | ✅             | アップストリームホストごとの最大アイドル接続数             |
+| プロキシURL                    | `proxy_url`               | -          | ✅             | 転送リクエスト用のHTTP/HTTPSプロキシ、空の場合は環境を使用 |
 
 **キー設定：**
 
-| 設定                    | フィールド名                        | デフォルト | グループ上書き | 説明                                                        |
-| ---------------------- | ---------------------------------- | --------- | ------------ | ----------------------------------------------------------- |
-| 最大リトライ回数        | `max_retries`                      | 3         | ✅           | 単一リクエストで異なるキーを使用する最大リトライ回数              |
-| ブラックリストしきい値   | `blacklist_threshold`              | 3         | ✅           | キーがブラックリストに入る前の連続失敗回数                       |
-| キー検証間隔            | `key_validation_interval_minutes`  | 60        | ✅           | バックグラウンドスケジュールキー検証サイクル（分）                |
-| キー検証並行数          | `key_validation_concurrency`       | 10        | ✅           | 無効なキーのバックグラウンド検証の並行数                         |
-| キー検証タイムアウト     | `key_validation_timeout_seconds`   | 20        | ✅           | バックグラウンドでの個別キー検証のAPIリクエストタイムアウト（秒）  |
+| 設定                   | フィールド名                      | デフォルト | グループ上書き | 説明                                                              |
+| ---------------------- | --------------------------------- | ---------- | -------------- | ----------------------------------------------------------------- |
+| 最大リトライ回数       | `max_retries`                     | 3          | ✅             | 単一リクエストで異なるキーを使用する最大リトライ回数              |
+| ブラックリストしきい値 | `blacklist_threshold`             | 3          | ✅             | キーが累計何回失敗したらブラックリストに入るか                    |
+| キー検証間隔           | `key_validation_interval_minutes` | 60         | ✅             | バックグラウンドスケジュールキー検証サイクル（分）                |
+| キー検証並行数         | `key_validation_concurrency`      | 10         | ✅             | 無効なキーのバックグラウンド検証の並行数                          |
+| キー検証タイムアウト   | `key_validation_timeout_seconds`  | 20         | ✅             | バックグラウンドでの個別キー検証のAPIリクエストタイムアウト（秒） |
 
 </details>
 
@@ -283,7 +308,7 @@ GPT-LoadはAPIキーの暗号化保存をサポートしています。いつで
 #### Docker Composeデプロイメント
 
 ```bash
-# 1. イメージを更新（最新バージョンを使用していることを確認）
+# 1. イメージを更新（最新の v1 バージョンを使用していることを確認）
 docker compose pull
 
 # 2. サービスを停止
@@ -342,6 +367,7 @@ make run
 ### 重要な注意事項
 
 ⚠️ **重要な注意事項**：
+
 - **ENCRYPTION_KEYが失われると、暗号化されたデータは復元できません！** このキーを安全にバックアップしてください。パスワードマネージャーまたは安全なキー管理システムの使用を検討してください
 - データの不整合を避けるため、移行前に**サービスを停止する必要があります**
 - 移行が失敗して復旧が必要な場合に備えて、**データベースをバックアップ**することを強く推奨します

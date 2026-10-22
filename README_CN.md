@@ -2,16 +2,39 @@
 
 [English](README.md) | 中文 | [日本語](README_JP.md)
 
-[![Release](https://img.shields.io/github/v/release/tbphp/gpt-load)](https://github.com/tbphp/gpt-load/releases)
-![Go Version](https://img.shields.io/badge/Go-1.24+-blue.svg)
+[![Release](https://img.shields.io/github/v/tag/tbphp/gpt-load?filter=v1.*)](https://github.com/tbphp/gpt-load/releases)
+![Go Version](https://img.shields.io/badge/Go-1.26.10+-blue.svg)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 一个高性能、企业级的 AI 接口透明代理服务，专门为需要集成多种 AI 服务的企业和开发者设计。采用 Go 语言开发，具备智能密钥管理、负载均衡和完善的监控功能，专为高并发生产环境而设计。
 
-详细请查看[官方文档](https://www.gpt-load.com/docs?lang=zh)
+详细请访问[官方网站](https://www.gpt-load.com/v1)
 
 <a href="https://trendshift.io/repositories/14880" target="_blank"><img src="https://trendshift.io/api/badge/repositories/14880" alt="tbphp%2Fgpt-load | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 <a href="https://hellogithub.com/repository/tbphp/gpt-load" target="_blank"><img src="https://api.hellogithub.com/v1/widgets/recommend.svg?rid=554dc4c46eb14092b9b0c56f1eb9021c&claim_uid=Qlh8vzrWJ0HCneG" alt="Featured｜HelloGitHub" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+
+## 赞助商
+
+<table>
+<tbody>
+<tr>
+<td width="180"><a href="https://go.apimart.ai/gh-gpt-load"><img src="./screenshot/apimart.png" alt="APIMart" width="150"></a></td>
+<td>感谢 APIMart 赞助了本项目！APIMart 是专注 AI 图片/视频生成的低价 API 平台，GPT-Image-2 低至 $0.006/张，1 美元可出图 160+ 张。图片、视频一套异步 API 通吃，提交任务拿 ID、回调取结果，跑批万张不超时、换模型不改代码。按量付费、无月费，通过<a href="https://go.apimart.ai/gh-gpt-load">此注册链接</a>注册即可开用。</td>
+</tr>
+<tr>
+<td width="180" align="center"><a href="https://openai.com/"><img src="./screenshot/sponsor-openai.svg" alt="OpenAI" width="56"></a></td>
+<td>感谢 OpenAI 对本项目的赞助支持。</td>
+</tr>
+<tr>
+<td width="180"><a href="https://linux.do"><img src="./screenshot/l.png" alt="LINUX DO" width="150"></a></td>
+<td>非常感谢 LINUX DO 社区的支持！</td>
+</tr>
+<tr>
+<td width="180"><a href="https://www.digitalocean.com/?refcode=3d52cff21342&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img src="https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%202.svg" alt="DigitalOcean Referral Badge" width="150"></a></td>
+<td>本项目由 DigitalOcean 支持。</td>
+</tr>
+</tbody>
+</table>
 
 ## 功能特性
 
@@ -39,7 +62,7 @@ GPT-Load 作为透明代理服务，完整保留各 AI 服务商的原生 API �
 
 ### 环境要求
 
-- Go 1.24+ (源码构建)
+- Go 1.26.10+ (源码构建)
 - Docker (容器化部署)
 - MySQL, PostgreSQL, 或 SQLite (数据库存储)
 - Redis (缓存和分布式协调，可选)
@@ -51,10 +74,12 @@ docker run -d --name gpt-load \
     -p 3001:3001 \
     -e AUTH_KEY=your-secure-key-here \
     -v "$(pwd)/data":/app/data \
-    ghcr.io/tbphp/gpt-load:latest
+    ghcr.io/tbphp/gpt-load:1
 ```
 
 > 请将 `your-secure-key-here` 改为强密码（决不能使用默认值），即可登录管理界面：<http://localhost:3001>
+
+> v1 维护线的稳定 Docker 标签为 `1`。v1 发布不再更新 `latest`；过渡期结束后，`latest` 可能切换至 v2。现有 v1 部署请将镜像固定为 `:1`。
 
 ### 方式二：使用 Docker Compose（推荐）
 
@@ -65,8 +90,8 @@ docker run -d --name gpt-load \
 mkdir -p gpt-load && cd gpt-load
 
 # 下载配置文件
-wget https://raw.githubusercontent.com/tbphp/gpt-load/refs/heads/main/docker-compose.yml
-wget -O .env https://raw.githubusercontent.com/tbphp/gpt-load/refs/heads/main/.env.example
+wget https://raw.githubusercontent.com/tbphp/gpt-load/refs/heads/v1/docker-compose.yml
+wget -O .env https://raw.githubusercontent.com/tbphp/gpt-load/refs/heads/v1/.env.example
 
 # 编辑 .env 文件，修改AUTH_KEY为强密码，绝不使用 sk-123456 等默认或者简单密钥
 
@@ -92,7 +117,7 @@ docker compose logs -f
 # 重启服务
 docker compose down && docker compose up -d
 
-# 更新到最新版本
+# 更新到最新 v1 版本
 docker compose pull && docker compose down && docker compose up -d
 ```
 
@@ -179,10 +204,10 @@ GPT-Load 采用双层配置架构：
 
 **安全配置：**
 
-| 配置项   | 环境变量        | 默认值 | 说明                                                                 |
-| -------- | --------------- | ------ | -------------------------------------------------------------------- |
-| 管理密钥 | `AUTH_KEY`      | -      | **管理端**的访问认证密钥，请修改为强密码                             |
-| 加密密钥 | `ENCRYPTION_KEY`| -      | 加密存储的API密钥，支持任意字符串或留空禁用加密。参见[数据加密迁移](#数据加密迁移) |
+| 配置项   | 环境变量         | 默认值 | 说明                                                                               |
+| -------- | ---------------- | ------ | ---------------------------------------------------------------------------------- |
+| 管理密钥 | `AUTH_KEY`       | -      | **管理端**的访问认证密钥，请修改为强密码                                           |
+| 加密密钥 | `ENCRYPTION_KEY` | -      | 加密存储的API密钥，支持任意字符串或留空禁用加密。参见[数据加密迁移](#数据加密迁移) |
 
 **数据库配置：**
 
@@ -196,7 +221,7 @@ GPT-Load 采用双层配置架构：
 | 配置项       | 环境变量                  | 默认值                        | 说明                     |
 | ------------ | ------------------------- | ----------------------------- | ------------------------ |
 | 最大并发请求 | `MAX_CONCURRENT_REQUESTS` | 100                           | 系统允许的最大并发请求数 |
-| 启用 CORS    | `ENABLE_CORS`             | false                          | 是否启用跨域资源共享     |
+| 启用 CORS    | `ENABLE_CORS`             | false                         | 是否启用跨域资源共享     |
 | 允许的来源   | `ALLOWED_ORIGINS`         | -                             | 允许的来源，逗号分隔     |
 | 允许的方法   | `ALLOWED_METHODS`         | `GET,POST,PUT,DELETE,OPTIONS` | 允许的 HTTP 方法         |
 | 允许的头部   | `ALLOWED_HEADERS`         | `*`                           | 允许的请求头，逗号分隔   |
@@ -233,24 +258,24 @@ GPT-Load 会自动从环境变量中读取代理设置，用于向上游 AI 服�
 
 **基础设置：**
 
-| 配置项       | 字段名                               | 默认值                      | 分组可覆盖 | 说明                                   |
-| ------------ | ------------------------------------ | --------------------------- | ---------- | -------------------------------------- |
-| 项目地址     | `app_url`                            | `http://localhost:3001`     | ❌         | 项目基础 URL                           |
-| 全局代理密钥 | `proxy_keys`                         | 初始值为环境配置的 AUTH_KEY | ❌         | 全局生效的代理认证密钥，多个用逗号分隔 |
-| 日志保留天数 | `request_log_retention_days`         | 7                           | ❌         | 请求日志保留天数，0 为不清理           |
-| 日志写入间隔 | `request_log_write_interval_minutes` | 1                           | ❌         | 日志写入数据库周期（分钟）             |
+| 配置项       | 字段名                               | 默认值                      | 分组可覆盖 | 说明                                                           |
+| ------------ | ------------------------------------ | --------------------------- | ---------- | -------------------------------------------------------------- |
+| 项目地址     | `app_url`                            | `http://localhost:3001`     | ❌         | 项目基础 URL                                                   |
+| 全局代理密钥 | `proxy_keys`                         | 初始值为环境配置的 AUTH_KEY | ❌         | 全局生效的代理认证密钥，多个用逗号分隔                         |
+| 日志保留天数 | `request_log_retention_days`         | 7                           | ❌         | 请求日志保留天数，0 为不清理                                   |
+| 日志写入间隔 | `request_log_write_interval_minutes` | 1                           | ❌         | 日志写入数据库周期（分钟）                                     |
 | 启用日志详情 | `enable_request_body_logging`        | false                       | ✅         | 是否在请求日志中记录完整的请求体内容，启用会增加内存和存储占用 |
 
 **请求设置：**
 
-| 配置项               | 字段名                    | 默认值 | 分组可覆盖 | 说明                           |
-| -------------------- | ------------------------- | ------ | ---------- | ------------------------------ |
-| 请求超时             | `request_timeout`         | 600    | ✅         | 转发请求完整生命周期超时（秒） |
-| 连接超时             | `connect_timeout`         | 15     | ✅         | 与上游服务建立连接超时（秒）   |
-| 空闲连接超时         | `idle_conn_timeout`       | 120    | ✅         | HTTP 客户端空闲连接超时（秒）  |
-| 响应头超时           | `response_header_timeout` | 600    | ✅         | 等待上游响应头超时（秒）       |
-| 最大空闲连接数       | `max_idle_conns`          | 100    | ✅         | 连接池最大空闲连接总数         |
-| 每主机最大空闲连接数 | `max_idle_conns_per_host` | 50     | ✅         | 每个上游主机最大空闲连接数     |
+| 配置项               | 字段名                    | 默认值 | 分组可覆盖 | 说明                                               |
+| -------------------- | ------------------------- | ------ | ---------- | -------------------------------------------------- |
+| 请求超时             | `request_timeout`         | 600    | ✅         | 转发请求完整生命周期超时（秒）                     |
+| 连接超时             | `connect_timeout`         | 15     | ✅         | 与上游服务建立连接超时（秒）                       |
+| 空闲连接超时         | `idle_conn_timeout`       | 120    | ✅         | HTTP 客户端空闲连接超时（秒）                      |
+| 响应头超时           | `response_header_timeout` | 600    | ✅         | 等待上游响应头超时（秒）                           |
+| 最大空闲连接数       | `max_idle_conns`          | 100    | ✅         | 连接池最大空闲连接总数                             |
+| 每主机最大空闲连接数 | `max_idle_conns_per_host` | 50     | ✅         | 每个上游主机最大空闲连接数                         |
 | 代理服务器地址       | `proxy_url`               | -      | ✅         | 用于转发请求的 HTTP/HTTPS 代理，为空则使用环境配置 |
 
 **密钥配置：**
@@ -258,7 +283,7 @@ GPT-Load 会自动从环境变量中读取代理设置，用于向上游 AI 服�
 | 配置项         | 字段名                            | 默认值 | 分组可覆盖 | 说明                                             |
 | -------------- | --------------------------------- | ------ | ---------- | ------------------------------------------------ |
 | 最大重试次数   | `max_retries`                     | 3      | ✅         | 单个请求使用不同密钥的最大重试次数               |
-| 黑名单阈值     | `blacklist_threshold`             | 3      | ✅         | 密钥连续失败多少次后进入黑名单                   |
+| 黑名单阈值     | `blacklist_threshold`             | 3      | ✅         | 密钥累计失败多少次后进入黑名单                   |
 | 密钥验证间隔   | `key_validation_interval_minutes` | 60     | ✅         | 后台定时验证密钥周期（分钟）                     |
 | 密钥验证并发数 | `key_validation_concurrency`      | 10     | ✅         | 后台定时验证无效 Key 时的并发数                  |
 | 密钥验证超时   | `key_validation_timeout_seconds`  | 20     | ✅         | 后台定时验证单个 Key 时的 API 请求超时时间（秒） |
@@ -283,7 +308,7 @@ GPT-Load 支持对 API 密钥进行加密存储。您可以随时启用、禁用
 #### Docker Compose 部署
 
 ```bash
-# 1. 更新镜像（确保使用最新版本）
+# 1. 更新镜像（确保使用最新 v1 版本）
 docker compose pull
 
 # 2. 停止服务
@@ -342,6 +367,7 @@ make run
 ### 注意事项
 
 ⚠️ **重要提醒**：
+
 - **ENCRYPTION_KEY 一旦丢失将无法恢复已加密的数据！** 请务必安全备份此密钥，建议使用密码管理器或安全的密钥管理系统保存
 - 迁移前**必须停止服务**，避免数据不一致
 - 强烈建议**备份数据库**，以防迁移失败需要恢复

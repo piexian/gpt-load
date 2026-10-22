@@ -76,6 +76,11 @@ var MessagesEnUS = map[string]string{
 	"validation.sub_group_referenced_cannot_modify":          "This group is referenced by {{.count}} aggregate group(s) as a sub-group. Cannot modify channel type or validation endpoint. Please remove this group from related aggregate groups before making changes",
 	"validation.standard_group_requires_upstreams_testmodel": "Converting to standard group requires providing upstreams and test model",
 	"validation.aggregate_no_model_redirect":                 "Aggregate groups do not support model redirect rules",
+	"validation.reorder_items_required":                      "Reorder items cannot be empty",
+	"validation.reorder_group_id":                            "Reorder item contains invalid group ID",
+	"validation.reorder_sort_negative":                       "Sort value cannot be negative",
+	"validation.reorder_duplicate_group":                     "Duplicate group ID in reorder items: {{.id}}",
+	"validation.reorder_group_not_found":                     "Reorder items contain non-existent group",
 
 	// Task related
 	"task.validation_started": "Key validation task started",
@@ -114,6 +119,7 @@ var MessagesEnUS = map[string]string{
 	"success.keys_restored":        "{{.count}} keys restored",
 	"success.invalid_keys_cleared": "{{.count}} invalid keys cleared",
 	"success.all_keys_cleared":     "{{.count}} keys cleared",
+	"success.groups_reordered":     "Group order saved",
 
 	// Password security related
 	"security.password_too_short":         "{{.keyType}} is too short ({{.length}} characters), recommend at least 16 characters",
@@ -153,14 +159,14 @@ var MessagesEnUS = map[string]string{
 	"config.max_idle_conns_per_host_desc": "Maximum number of idle connections allowed per upstream host in the HTTP client connection pool.",
 	"config.proxy_url":                    "Proxy Server URL",
 	"config.proxy_url_desc":               "Global HTTP/HTTPS proxy server URL, e.g., http://user:pass@host:port. If empty, uses environment variable configuration.",
-	"config.iflow_queue_timeout":          "iFlow Queue Timeout (seconds)",
-	"config.iflow_queue_timeout_desc":     "Queue wait timeout (seconds) for iFlow single-key serialization. Requests exceeding this wait will fail with a timeout error.",
 
 	// Key config related
 	"config.max_retries":                     "Max Retries",
 	"config.max_retries_desc":                "Maximum number of retries for a single request using different keys, 0 for no retries.",
 	"config.blacklist_threshold":             "Blacklist Threshold",
-	"config.blacklist_threshold_desc":        "Number of consecutive failures before a key is blacklisted, 0 to disable blacklisting.",
+	"config.blacklist_threshold_desc":        "After how many cumulative failures does a Key enter the blacklist; 0 means do not blacklist.",
+	"config.failover_status_codes":           "Failover Status Codes",
+	"config.failover_status_codes_desc":      "Complete list of upstream HTTP status codes that trigger failover (retry). Supports comma-separated values and ranges, e.g.: 400-403,405-999,250-260. Groups can override this value individually.",
 	"config.key_validation_interval":         "Key Validation Interval (minutes)",
 	"config.key_validation_interval_desc":    "Default interval (minutes) for background key validation.",
 	"config.key_validation_concurrency":      "Key Validation Concurrency",
@@ -168,21 +174,21 @@ var MessagesEnUS = map[string]string{
 	"config.key_validation_timeout":          "Key Validation Timeout (seconds)",
 	"config.key_validation_timeout_desc":     "API request timeout (seconds) when validating a single key in the background.",
 
-	// Rate limit config related
-	"config.rpm_limit":             "RPM Limit",
-	"config.rpm_limit_desc":        "Maximum requests per minute, 0 means unlimited.",
-	"config.daily_limit":           "Daily Request Limit",
-	"config.daily_limit_desc":      "Maximum requests per day, 0 means unlimited.",
-	"config.rate_limit_scope":      "Rate Limit Scope",
-	"config.rate_limit_scope_desc": "channel=shared counter for the whole channel; key=each API key has its own counter.",
-	"config.daily_reset_hour":      "Daily Reset Hour",
-	"config.daily_reset_hour_desc": "Local hour (0-23) at which the daily quota resets. E.g. 8 means reset at 08:00, default 0 (midnight).",
-
 	// Category labels
-	"config.category.basic":      "Basic",
-	"config.category.request":    "Request Settings",
-	"config.category.key":        "Key Configuration",
-	"config.category.rate_limit": "Rate Limiting",
+	"config.category.basic":           "Basic",
+	"config.category.request":         "Request Settings",
+	"config.category.key":             "Key Configuration",
+	"config.category.rate_limit":      "Rate Limiting",
+	"config.rpm_limit":                "RPM Limit",
+	"config.rpm_limit_desc":           "Maximum requests per minute, 0 means unlimited.",
+	"config.daily_limit":              "Daily Request Limit",
+	"config.daily_limit_desc":         "Maximum requests per day, 0 means unlimited.",
+	"config.rate_limit_scope":         "Rate Limit Scope",
+	"config.rate_limit_scope_desc":    "channel=shared counter for the whole channel; key=each API key has its own counter.",
+	"config.daily_reset_hour":         "Daily Reset Hour",
+	"config.daily_reset_hour_desc":    "Local hour (0-23) at which the daily quota resets. E.g. 8 means reset at 08:00, default 0 (midnight).",
+	"config.iflow_queue_timeout":      "iFlow Queue Timeout (seconds)",
+	"config.iflow_queue_timeout_desc": "Queue wait timeout (seconds) for iFlow single-key serialization. Requests exceeding this wait will fail with a timeout error.",
 
 	// Internal error messages (for fmt.Errorf usage)
 	"error.upstreams_required":       "upstreams field is required",

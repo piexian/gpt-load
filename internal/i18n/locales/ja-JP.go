@@ -76,6 +76,11 @@ var MessagesJaJP = map[string]string{
 	"validation.sub_group_referenced_cannot_modify":          "このグループは {{.count}} 個の集約グループでサブグループとして参照されています。チャンネルタイプまたは検証エンドポイントは変更できません。変更前に関連する集約グループからこのグループを削除してください",
 	"validation.standard_group_requires_upstreams_testmodel": "標準グループへの変換にはアップストリームサーバーとテストモデルの提供が必要です",
 	"validation.aggregate_no_model_redirect":                 "集約グループはモデルリダイレクトルールをサポートしていません",
+	"validation.reorder_items_required":                      "並び替え項目は空にできません",
+	"validation.reorder_group_id":                            "並び替え項目に無効なグループIDが含まれています",
+	"validation.reorder_sort_negative":                       "並び順の値は負数にできません",
+	"validation.reorder_duplicate_group":                     "並び替え項目に重複したグループIDがあります: {{.id}}",
+	"validation.reorder_group_not_found":                     "並び替え項目に存在しないグループが含まれています",
 
 	// Task related
 	"task.validation_started": "キー検証タスクが開始されました",
@@ -114,6 +119,7 @@ var MessagesJaJP = map[string]string{
 	"success.keys_restored":        "{{.count}}個のキーが復元されました",
 	"success.invalid_keys_cleared": "{{.count}}個の無効なキーがクリアされました",
 	"success.all_keys_cleared":     "{{.count}}個のキーがクリアされました",
+	"success.groups_reordered":     "グループの並び順を保存しました",
 
 	// Password security related
 	"security.password_too_short":         "{{.keyType}}が短すぎます（{{.length}}文字）。少なくとも16文字を推奨します",
@@ -153,14 +159,14 @@ var MessagesJaJP = map[string]string{
 	"config.max_idle_conns_per_host_desc": "HTTPクライアント接続プールで各上流ホストに許可される最大アイドル接続数。",
 	"config.proxy_url":                    "プロキシサーバーURL",
 	"config.proxy_url_desc":               "グローバルHTTP/HTTPSプロキシサーバーURL。例：http://user:pass@host:port。空の場合は環境変数設定を使用。",
-	"config.iflow_queue_timeout":          "iFlow キュー待機タイムアウト（秒）",
-	"config.iflow_queue_timeout_desc":     "iFlow の単一キー直列キューにおける待機タイムアウト（秒）。この時間を超えるとタイムアウトエラーを返します。",
 
 	// Key config related
 	"config.max_retries":                     "最大リトライ数",
 	"config.max_retries_desc":                "異なるキーを使用した単一リクエストの最大リトライ数、0でリトライなし。",
 	"config.blacklist_threshold":             "ブラックリストしきい値",
-	"config.blacklist_threshold_desc":        "キーがブラックリストに入るまでの連続失敗回数、0でブラックリスト無効。",
+	"config.blacklist_threshold_desc":        "ある Key が累計で何回失敗するとブラックリストに入るか。0 はブラックリストに入れないことを意味する。",
+	"config.failover_status_codes":           "フェイルオーバーステータスコード",
+	"config.failover_status_codes_desc":      "フェイルオーバー（リトライ）をトリガーする上流 HTTP ステータスコードの完全なリスト。カンマ区切りと範囲指定に対応（例：400-403,405-999,250-260）。グループごとに個別上書き可能。",
 	"config.key_validation_interval":         "キー検証間隔（分）",
 	"config.key_validation_interval_desc":    "バックグラウンドキー検証のデフォルト間隔（分）。",
 	"config.key_validation_concurrency":      "キー検証並行数",
@@ -168,21 +174,21 @@ var MessagesJaJP = map[string]string{
 	"config.key_validation_timeout":          "キー検証タイムアウト（秒）",
 	"config.key_validation_timeout_desc":     "バックグラウンドで単一キーを検証する際のAPIリクエストタイムアウト（秒）。",
 
-	// Rate limit config related
-	"config.rpm_limit":             "RPM制限",
-	"config.rpm_limit_desc":        "1分あたりの最大リクエスト数、0は無制限。",
-	"config.daily_limit":           "1日のリクエスト上限",
-	"config.daily_limit_desc":      "1日の最大リクエスト数、0は無制限。",
-	"config.rate_limit_scope":      "レート制限スコープ",
-	"config.rate_limit_scope_desc": "channel=チャンネル全体で共有カウンター；key=各APIキーが独自のカウンターを持つ。",
-	"config.daily_reset_hour":      "毎日リセット時刻（時）",
-	"config.daily_reset_hour_desc": "日次クォータがリセットされるローカル時間（0-23）。例：8は08:00リセット、デフォルト0（深夜）。",
-
 	// Category labels
-	"config.category.basic":      "基本設定",
-	"config.category.request":    "リクエスト設定",
-	"config.category.key":        "キー設定",
-	"config.category.rate_limit": "レート制限",
+	"config.category.basic":           "基本設定",
+	"config.category.request":         "リクエスト設定",
+	"config.category.key":             "キー設定",
+	"config.category.rate_limit":      "レート制限",
+	"config.rpm_limit":                "RPM制限",
+	"config.rpm_limit_desc":           "1分あたりの最大リクエスト数、0は無制限。",
+	"config.daily_limit":              "1日のリクエスト上限",
+	"config.daily_limit_desc":         "1日の最大リクエスト数、0は無制限。",
+	"config.rate_limit_scope":         "レート制限スコープ",
+	"config.rate_limit_scope_desc":    "channel=チャンネル全体で共有カウンター；key=各APIキーが独自のカウンターを持つ。",
+	"config.daily_reset_hour":         "毎日リセット時刻（時）",
+	"config.daily_reset_hour_desc":    "日次クォータがリセットされるローカル時間（0-23）。例：8は08:00リセット、デフォルト0（深夜）。",
+	"config.iflow_queue_timeout":      "iFlow キュー待機タイムアウト（秒）",
+	"config.iflow_queue_timeout_desc": "iFlow の単一キー直列キューにおける待機タイムアウト（秒）。この時間を超えるとタイムアウトエラーを返します。",
 
 	// Internal error messages (for fmt.Errorf usage)
 	"error.upstreams_required":       "upstreamsフィールドは必須です",
